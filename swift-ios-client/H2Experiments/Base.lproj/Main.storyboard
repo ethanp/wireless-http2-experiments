@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -18,9 +18,12 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Yf1-qR-oCC">
-                                <rect key="frame" x="20" y="20" width="560" height="30"/>
+                                <rect key="frame" x="20" y="20" width="129" height="30"/>
                                 <animations/>
-                                <state key="normal" title="Start"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="129" id="A1Q-cX-1xM"/>
+                                </constraints>
+                                <state key="normal" title="Florian's Thing"/>
                                 <connections>
                                     <action selector="startTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="42j-Ud-BKf"/>
                                 </connections>
@@ -42,25 +45,38 @@
                                     <constraint firstAttribute="height" constant="91" id="mxR-jv-iP4"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7cE-ol-MVx">
+                                <rect key="frame" x="195" y="20" width="142" height="30"/>
+                                <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="142" id="Apo-kd-63f"/>
+                                </constraints>
+                                <state key="normal" title="k-TCP Java Test"/>
+                                <connections>
+                                    <action selector="startKTcpTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tG0-4c-F3l"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Rwn-Xd-6wX" firstAttribute="centerX" secondItem="bka-CQ-U1g" secondAttribute="centerX" id="27k-8a-7YV"/>
+                            <constraint firstItem="7cE-ol-MVx" firstAttribute="baseline" secondItem="Yf1-qR-oCC" secondAttribute="baseline" id="8rd-7q-vrl"/>
+                            <constraint firstItem="Yf1-qR-oCC" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="9W6-s8-CNB"/>
                             <constraint firstItem="Rwn-Xd-6wX" firstAttribute="bottom" secondItem="wfy-db-euE" secondAttribute="top" id="CnB-vB-T7E"/>
                             <constraint firstItem="Rwn-Xd-6wX" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="IWy-m1-640"/>
-                            <constraint firstItem="bka-CQ-U1g" firstAttribute="top" secondItem="Yf1-qR-oCC" secondAttribute="bottom" constant="8" symbolic="YES" id="PIX-1C-n6R"/>
+                            <constraint firstItem="7cE-ol-MVx" firstAttribute="leading" secondItem="Yf1-qR-oCC" secondAttribute="trailing" constant="46" id="NjA-eU-yLa"/>
+                            <constraint firstItem="Yf1-qR-oCC" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="Um2-g3-QCT"/>
+                            <constraint firstItem="Yf1-qR-oCC" firstAttribute="leading" secondItem="bka-CQ-U1g" secondAttribute="leading" id="XbZ-td-rkY"/>
                             <constraint firstAttribute="trailing" secondItem="Rwn-Xd-6wX" secondAttribute="trailing" id="bIb-3j-m4H"/>
-                            <constraint firstItem="Yf1-qR-oCC" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="nzF-hY-W1G"/>
-                            <constraint firstItem="bka-CQ-U1g" firstAttribute="trailing" secondItem="Yf1-qR-oCC" secondAttribute="trailing" id="rp7-7V-hHa"/>
-                            <constraint firstItem="Yf1-qR-oCC" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="wJF-fv-wwt"/>
-                            <constraint firstItem="bka-CQ-U1g" firstAttribute="leading" secondItem="Yf1-qR-oCC" secondAttribute="leading" id="xeg-Ru-Icx"/>
+                            <constraint firstItem="bka-CQ-U1g" firstAttribute="top" secondItem="Yf1-qR-oCC" secondAttribute="bottom" constant="8" symbolic="YES" id="xen-Bg-U70"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="kTcpTest" destination="7cE-ol-MVx" id="jkY-8E-v0W"/>
                         <outlet property="logTextView" destination="Rwn-Xd-6wX" id="Lp1-Qp-guH"/>
                         <outlet property="startButton" destination="Yf1-qR-oCC" id="TSk-QL-adM"/>
                         <outlet property="statusLabel" destination="bka-CQ-U1g" id="VYD-K5-AAO"/>

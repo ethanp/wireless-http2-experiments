@@ -11,6 +11,7 @@
 //
 
 import UIKit
+import Foundation
 
 // this class `extends UIViewController` and `implements HTTP2TesterDelegate`
 class ViewController: UIViewController, HTTP2TesterDelegate {
@@ -35,6 +36,41 @@ class ViewController: UIViewController, HTTP2TesterDelegate {
     @IBOutlet weak var startButton: UIButton!
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var logTextView: UITextView!
+    @IBOutlet weak var kTcpTest: UIButton!
+    
+    /** see this in action by running `$ nc -l 4000` */
+    @IBAction func startKTcpTest(sender: UIButton) {
+        // http://stackoverflow.com/questions/24863550
+        let addr = "127.0.0.1"
+        let port = 4000
+        
+        let str = "Yayaya\n"
+        // http://stackoverflow.com/questions/25027831
+        var buffer = [UInt8](str.utf8)
+        
+        var inp: NSInputStream?
+        var out: NSOutputStream?
+        
+        NSStream.getStreamsToHostWithName(
+            addr,
+            port: port,
+            inputStream: &inp,
+            outputStream: &out
+        )
+        
+        let inputStream = inp!
+        let outputStream = out!
+        inputStream.open()
+        outputStream.open()
+        
+        var readByte :UInt8 = 0
+        while inputStream.hasBytesAvailable {
+            inputStream.read(&readByte, maxLength: 1)
+        }
+        
+        // buffer is a UInt8 array containing bytes of the string "Jonathan Yaniv.".
+        outputStream.write(&buffer, maxLength: buffer.count)
+    }
     
     /** When the user hits the "Start" button */
     @IBAction func startTest(sender: AnyObject) {
@@ -87,7 +123,7 @@ class ViewController: UIViewController, HTTP2TesterDelegate {
             dispatch_async(dispatch_get_main_queue()) {
                 self.statusLabel.text = "Finished"
                 self.logTextView.text = "[\(self.dateFormatter.stringFromDate(NSDate()))]: Finished\n\(self.logTextView.text)"
-                self.startButton.setTitle("Restart it!", forState: .Normal)
+                self.startButton.setTitle("Restart Florian", forState: .Normal)
                 self.startButton.enabled = true
             }
         }
