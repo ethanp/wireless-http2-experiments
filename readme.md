@@ -18,7 +18,6 @@
   which multiple requests are made, in sequence.
 
 ### Methodology
-
 * We don't use TLS
 * We don't use HTTP
 
@@ -36,6 +35,35 @@
   described above, and receives the configured number of bytes.
 * The app records how long this all takes on a _per connection_ basis, and also
   from start-to-finish for all _k_ simultaneous connections.
+
+### The Datas
+* The client shall store the nano-time at which
+    * the whole thing is initiated
+    * each TCP connection 
+        * is _established_
+        * data starts being received
+        * data is done being received
+        * is _closed_
+    * The whole thing terminates
+* This will be stored in the __following *json* format__
+  
+    ```json
+    {
+      "start": nanotime[Long],
+      "conns": {
+        port1[Int]: {
+          "before": nanotime,
+          "connEstablished": nanotime,
+          "firstByteRcvd": nanotime,
+          "dataDone": nanotime,
+          "closed": nanotime
+        },
+        port2[Int]: ...,
+        ...
+      },
+      "end": nanotime
+    }
+    ```
 
 ## H1 vs H2
 ### Overview

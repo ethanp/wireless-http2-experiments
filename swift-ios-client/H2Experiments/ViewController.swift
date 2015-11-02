@@ -126,7 +126,7 @@ class ViewController: UIViewController, HTTP2TesterDelegate {
             // update UI after finishing the requests
             dispatch_async(dispatch_get_main_queue()) {
                 self.statusLabel.text = "Finished"
-                self.logTextView.text = "[\(self.dateFormatter.stringFromDate(NSDate()))]: Finished\n\(self.logTextView.text)"
+                self.logTextView.text = "[\(self.dateString())]: Finished\n\(self.logTextView.text)"
                 self.startButton.setTitle("Restart Florian", forState: .Normal)
                 self.startButton.enabled = true
             }
@@ -144,8 +144,12 @@ class ViewController: UIViewController, HTTP2TesterDelegate {
         // do UI work on the applications main_queue
         dispatch_async(dispatch_get_main_queue()) {
             self.statusLabel.text = msg
-            self.logTextView.text = "[\(self.dateFormatter.stringFromDate(NSDate()))]: \(msg)\n\(self.logTextView.text)"
+            self.logTextView.text = "[\(self.dateString())]: \(msg)\n\(self.logTextView.text)"
         }
+    }
+    
+    func dateString() -> String {
+        return self.dateFormatter.stringFromDate(NSDate())
     }
 }
 
