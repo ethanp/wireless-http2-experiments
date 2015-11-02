@@ -46,7 +46,7 @@ class ViewController: UIViewController, HTTP2TesterDelegate {
         
         let str = "Yayaya\n"
         // http://stackoverflow.com/questions/25027831
-        var buffer = [UInt8](str.utf8)
+        var outBuff = [UInt8](str.utf8)
         
         var inp: NSInputStream?
         var out: NSOutputStream?
@@ -62,14 +62,18 @@ class ViewController: UIViewController, HTTP2TesterDelegate {
         let outputStream = out!
         inputStream.open()
         outputStream.open()
-        
-        var readByte :UInt8 = 0
+        NSLog("hello")
+        var inbuf = [UInt8](count: 8, repeatedValue: 0)
+        // spin until data becomes available
+        while !inputStream.hasBytesAvailable {
+            print("spinning")
+        }
         while inputStream.hasBytesAvailable {
-            inputStream.read(&readByte, maxLength: 1)
+            let numBytesRcvd: Int = inputStream.read(&inbuf, maxLength: 8)
+            print("\(numBytesRcvd), \(inbuf.prefix(numBytesRcvd))")
         }
         
-        // buffer is a UInt8 array containing bytes of the string "Jonathan Yaniv.".
-        outputStream.write(&buffer, maxLength: buffer.count)
+        outputStream.write(&outBuff, maxLength: outBuff.count)
     }
     
     /** When the user hits the "Start" button */

@@ -90,6 +90,6 @@ public class KTCPs {
     }
 
     public static void main(String[] args) {
-        KTCPs a = new KTCPs(3, 2500, 25);
+        KTCPs a = new KTCPs(3, 4000, 25);
     }
 }
