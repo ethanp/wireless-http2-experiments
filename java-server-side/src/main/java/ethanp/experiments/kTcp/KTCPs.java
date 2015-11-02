@@ -75,7 +75,7 @@ public class KTCPs {
                         System.exit(3);
                     }
                     long end = System.nanoTime();
-                    System.out.println("server at "+port+" took "+millis(start, end)+" ms");
+                    System.out.println("server at "+port+" took "+(end-start)+" ns");
                 }
             }
             catch (IOException e) {

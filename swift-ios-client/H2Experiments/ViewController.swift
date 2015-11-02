@@ -131,7 +131,6 @@ class ViewController: UIViewController, HTTP2TesterDelegate {
                 self.startButton.enabled = true
             }
         }
-        
     }
     
     /** Implements the `protocol HTTP2TesterDelegate` 
