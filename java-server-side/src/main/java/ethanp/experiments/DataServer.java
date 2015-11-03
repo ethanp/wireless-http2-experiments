@@ -1,4 +1,4 @@
-package ethanp.experiments.kTcp.data;
+package ethanp.experiments;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,6 +17,9 @@ import java.util.Calendar;
  * This thing just excepts JSON blobs of data as UTF-8 strings,
  * and timestamps them then dumps them out to an appropriate
  * location in the file system.
+ *
+ * It [currently] reads one line from the socket then closes the connection.
+ * Because I can't think of anything else necessary for it to do...
  *
  * TODO it currently just dumps to "dataFile.txt"
  */
@@ -48,10 +51,16 @@ public class DataServer implements Runnable {
         return _instance;
     }
 
+    public static void cancel() {
+        if (_instanceThread != null && !_instanceThread.isInterrupted()) {
+            System.out.println("data server was cancelled");
+            _instanceThread.interrupt();
+        }
+    }
+
     @Override public void run() {
         System.out.println("data server listening on port 12345");
-        //noinspection InfiniteLoopStatement
-        while (true) {
+        while (!_instanceThread.isInterrupted()) {
             try (Socket dataSocket = serverSocket.accept()) {
                 try (BufferedReader is =
                     new BufferedReader(
@@ -67,8 +76,10 @@ public class DataServer implements Runnable {
 
                     System.out.println("received: "+timestampedData);
                     File outFile = new File("dataFile.txt");
-                    try (FileOutputStream appendStream = new FileOutputStream(outFile, true)) {
-                        PrintStream flushingWriter = new PrintStream(appendStream, true);
+                    try (
+                        FileOutputStream appendingStream = new FileOutputStream(outFile, true);
+                        PrintStream flushingWriter = new PrintStream(appendingStream, true)
+                    ) {
                         flushingWriter.println(timestampedData);
                     }
                 }
@@ -78,9 +89,12 @@ public class DataServer implements Runnable {
                 System.exit(7);
             }
         }
+        System.out.println("data server was interrupted: closing.");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         DataServer.start();
+        Thread.sleep(40000);
+        DataServer.cancel();
     }
 }

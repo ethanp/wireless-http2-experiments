@@ -74,7 +74,8 @@
 * This is starting to change, as evidenced here [link to implementations wiki].
 
 #### Server
-* We wanted to make sure the same framework would be used for both our H1 and H2 experimental trials.
+* We wanted to make sure the same framework would be used for both our H1 and
+  H2 experimental trials.
 * For this reason, the open-source Jetty framework (in Java) was most suitable.
 
 #### Client
@@ -83,7 +84,17 @@
   available.
 
 ## Data Collection
-* There is a specific Java server that is very easy to set-up from other programs.
+### DataServer
+* There is a specific Java server that is very easy to set-up from other
+  programs.
 * It is the `DataServer`, and it sits there, expecting data to come in as a
   UTF-8 JSON String through a server socket.
 * It just dumps that json string into a file
+
+### DataSender
+* There is a Swift class `DataSender` purpose built to send appropriately-
+  formatted JSON blobs to the aforementioned Java `DataServer`.
+* `DataSender` works as follows
+* There is a `JsonBuilder` that exposes a nice API for building the Json object
+* Then you can do `DataSender.send(JsonBuilder)` and it all gets sent to the
+  `DataServer`

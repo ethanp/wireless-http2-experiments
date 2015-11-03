@@ -141,7 +141,7 @@ class ViewController: UIViewController, HTTP2TesterDelegate {
     func log(http2Tester: HTTP2Tester, msg: String) {
         NSLog(msg)
         
-        // do UI work on the applications main_queue
+        // best practice: do UI work on the applications main_queue
         dispatch_async(dispatch_get_main_queue()) {
             self.statusLabel.text = msg
             self.logTextView.text = "[\(self.dateString())]: \(msg)\n\(self.logTextView.text)"
