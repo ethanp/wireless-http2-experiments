@@ -90,8 +90,14 @@
 * So I'm going to start a new project, and leave it up to the _server_ to
   decide which protocol I should use, perhaps based on the specific URL path
   requested.
-* So I need a wrapper method `instrumentedGET(urlAndPort)`
+* So I need a wrapper method `instrumentedGET(urlAndPort)``
 
+##### Caching
+* This is one of those things that could easily get pretty frustrating to deal
+  with
+* Check out what's going they're doing in the [relevant unit tests][cachetests]
+
+[cachetests]: https://github.com/Alamofire/Alamofire/blob/c634f6067f0b5a59992a10bbd848203aa1231ff6/Tests/CacheTests.swift
 ## Data Collection
 ### DataServer
 * There is a specific Java server that is very easy to set-up from other
