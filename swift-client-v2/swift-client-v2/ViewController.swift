@@ -20,6 +20,10 @@ class ViewController: UIViewController {
     @IBOutlet weak var simpleRequestButton: UIButton!
     
     @IBAction func simpleRequestPressed(sender: UIButton) {
+        uploadData(JSON(3))
+    }
+    
+    func sampleGET() {
         Alamofire.request(.GET, "http://httpbin.org/get", parameters: ["foo": "bar"])
             .responseJSON { response in
                 print(response.request)  // original URL request
@@ -27,8 +31,8 @@ class ViewController: UIViewController {
                 print(response.data)     // server data
                 print(response.result)   // result of response serialization
                 
-                if let JSON = response.result.value {
-                    print("JSON: \(JSON)")
+                if let json = response.result.value {
+                    print("JSON: \(json)")
                 }
         }
     }
@@ -49,9 +53,21 @@ class ViewController: UIViewController {
         
     }
     
-    // TODO
+    // TODO as it is this thing takes a dict and converts it to json under the
+    // hood there may be something else I need to do if I want to pass a JSON
+    // obj directly to this method
     func uploadData(data: JSON) {
-        
+        let parameters = [
+            "foo": [1,2,3],
+            "bar": [
+                "baz": "qux"
+            ]
+        ]
+        print("uploading")
+        Alamofire.request(.POST, "http://localhost:4567/data", parameters: parameters, encoding: .JSON).responseJSON { response in
+            debugPrint(response)
+        }
+        // HTTP body: {"foo": [1, 2, 3], "bar": {"baz": "qux"}}
     }
     
     func jsonExample() {
