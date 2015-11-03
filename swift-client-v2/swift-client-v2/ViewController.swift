@@ -15,10 +15,6 @@ class ViewController: UIViewController {
     // Do any additional setup after loading the view
     override func viewDidLoad() {
         super.viewDidLoad()
-        let d2 = ["asdf": 1234, "bsdf": 2345]
-        let d1 = ["title": "TCP Vary", "start": dateString(), "cons": d2]
-        let json = JSON(d1)
-        print(json)
     }
     
     @IBOutlet weak var simpleRequestButton: UIButton!
@@ -48,12 +44,21 @@ class ViewController: UIViewController {
         return self.dateFormatter.stringFromDate(NSDate())
     }
 
+    // TODO
     func instrumentedGET(url: String, port: Int) {
         
     }
     
+    // TODO
     func uploadData(data: JSON) {
         
+    }
+    
+    func jsonExample() {
+        let d2 = ["asdf": 1234, "bsdf": 2345]
+        let d1 = ["title": "TCP Vary", "start": dateString(), "cons": d2]
+        let json = JSON(d1)
+        print(json)
     }
 }
 

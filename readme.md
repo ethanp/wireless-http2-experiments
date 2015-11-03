@@ -100,11 +100,16 @@
 [cachetests]: https://github.com/Alamofire/Alamofire/blob/c634f6067f0b5a59992a10bbd848203aa1231ff6/Tests/CacheTests.swift
 ## Data Collection
 ### DataServer
+#### OLD!
 * There is a specific Java server that is very easy to set-up from other
   programs.
 * It is the `DataServer`, and it sits there, expecting data to come in as a
   UTF-8 JSON String through a server socket.
 * It just dumps that json string into a file
+
+#### Sinatra version
+* I want `DataServer` to run HTTP, and the easiest way to do that wass to have
+  a little Sinatra microservice
 
 ### DataSender
 * There is a Swift class `DataSender` purpose built to send appropriately-
