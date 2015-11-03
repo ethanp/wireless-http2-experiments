@@ -24,9 +24,8 @@ public class KTCPs {
     int bytesSentPerConn;
 
     public KTCPs(int numServers, int firstPort, int bytesSentPerConn) {
-        assert firstPort >= 0 : "can't have negative port number";
-        assert numServers >= 1 : "require at least one concurrent connection";
-        assert bytesSentPerConn >= 1 : "must send > 0 bytes";
+        assert numServers > 0 : "require at least one concurrent connection";
+        assert bytesSentPerConn > 0 : "must send > 0 bytes";
 
         this.numServers = numServers;
         this.firstPort = firstPort;
@@ -37,6 +36,12 @@ public class KTCPs {
             NonPersistent np = new NonPersistent(firstPort+i, bytesSentPerConn);
             threadPool.execute(np);
         }
+    }
+
+    public void cancel() {
+        System.out.println("KTCPs cancelled");
+        // calls interrupt() on all the constituent threads
+        threadPool.shutdownNow();
     }
 
     /**
@@ -83,13 +88,11 @@ public class KTCPs {
                 System.exit(2);
             }
         }
-
-        private static long millis(long start, long end) {
-            return (end-start)/1_000_000;
-        }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         KTCPs a = new KTCPs(3, 4000, 25);
+        Thread.sleep(30000);
+        a.cancel();
     }
 }

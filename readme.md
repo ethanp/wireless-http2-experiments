@@ -82,6 +82,15 @@
 * Apple's iOS 9 contains a (private) implementation of HTTP/2 which is used
   automatically [__by which upgrade mechanism?__] when the server says it's
   available.
+* I found [some code](github.com/FGoessler/iOS-HTTP2-Test) that allows one to
+  selectively choose which H-vrsn to use based on whether you use
+  `NSURLConnection` (no H2) or `NSURLSession` (H2 in > iOS 9)
+* However that code is kind of overly-complicated, and I want to use
+  `Alamofire` and `SwiftyJSON` instead.
+* So I'm going to start a new project, and leave it up to the _server_ to
+  decide which protocol I should use, perhaps based on the specific URL path
+  requested.
+* So I need a wrapper method `instrumentedGET(urlAndPort)`
 
 ## Data Collection
 ### DataServer
