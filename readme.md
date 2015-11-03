@@ -49,6 +49,7 @@
   
     ```json
     {
+      "title": "TCP Vary"
       "start": nanotime[Long],
       "conns": {
         port1[Int]: {
@@ -80,3 +81,9 @@
 * Apple's iOS 9 contains a (private) implementation of HTTP/2 which is used
   automatically [__by which upgrade mechanism?__] when the server says it's
   available.
+
+## Data Collection
+* There is a specific Java server that is very easy to set-up from other programs.
+* It is the `DataServer`, and it sits there, expecting data to come in as a
+  UTF-8 JSON String through a server socket.
+* It just dumps that json string into a file
