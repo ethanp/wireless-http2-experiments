@@ -14,14 +14,29 @@ class EventedConn: NSObject, NSStreamDelegate {
     
     var host:String?
     var port:Int?
+    var bytesToDwnld:Int?
     var inputStream: NSInputStream?
     var outputStream: NSOutputStream?
+    var collectedData = [TcpLifecycleEvent: NSTimeInterval]()
+    
+    enum TcpLifecycleEvent {
+        case START
+        case OPEN
+        case FIRST_BYTE
+        case LAST_BYTE
+        case CLOSED
+    }
+    
+    var bytesRcvd = 0
 
-    func connect(host: String, port: Int) {
+    func connect(host: String, port: Int, bytesToDwnld: Int) {
         
         self.host = host
         self.port = port
+        self.bytesToDwnld = bytesToDwnld
         
+        // Note: typealias NSTimeInterval = Double
+        collectedData[TcpLifecycleEvent.START] = NSDate().timeIntervalSince1970
         NSStream.getStreamsToHostWithName(
             host,
             port: port,
@@ -46,6 +61,7 @@ class EventedConn: NSObject, NSStreamDelegate {
             //       on the delegate.
             inputStream!.open()
             outputStream!.open()
+            print("now this is what I'm talking about \(collectedData[TcpLifecycleEvent.START])")
         }
         else {
             print("ERROR: couldn't acquire a stream!")
@@ -59,12 +75,20 @@ class EventedConn: NSObject, NSStreamDelegate {
                 print("input: ErrorOccurred: \(aStream.streamError?.description)")
             case NSStreamEvent.OpenCompleted:
                 print("input: OpenCompleted")
+                collectedData[TcpLifecycleEvent.OPEN] = NSDate().timeIntervalSince1970
             case NSStreamEvent.HasBytesAvailable:
                 print("input: HasBytesAvailable")
+                if bytesRcvd == 0 {
+                    collectedData[TcpLifecycleEvent.FIRST_BYTE] = NSDate().timeIntervalSince1970
+                }
                 var inbuf = [UInt8](count: 8, repeatedValue: 0)
                 let numBytesRcvd: Int = inputStream!.read(&inbuf, maxLength: 8)
                 print("\(numBytesRcvd), \(inbuf.prefix(numBytesRcvd))")
-                
+                bytesRcvd += numBytesRcvd
+                if bytesRcvd >= bytesToDwnld {
+                    collectedData[TcpLifecycleEvent.LAST_BYTE] = NSDate().timeIntervalSince1970
+                    print(collectedData)
+                }
             default:
                 break
             }

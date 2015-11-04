@@ -46,7 +46,7 @@ class ViewController: UIViewController {
         */
         let starttime = NSDate().timeIntervalSince1970
 
-        conn.connect("localhost", port:12345)
+        conn.connect("localhost", port:12345, bytesToDwnld: 5)
         print("leaving tcp pressed handler")
         print(NSDate().timeIntervalSince1970 - starttime)
     }
