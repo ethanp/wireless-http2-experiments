@@ -13,6 +13,7 @@
 		AA81A9E61BE90F8600688763 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA81A9E41BE90F8600688763 /* Main.storyboard */; };
 		AA81A9E81BE90F8600688763 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA81A9E71BE90F8600688763 /* Assets.xcassets */; };
 		AA81A9EB1BE90F8600688763 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA81A9E91BE90F8600688763 /* LaunchScreen.storyboard */; };
+		AA81A9F31BE94D0B00688763 /* EventedConn.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA81A9F21BE94D0B00688763 /* EventedConn.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +26,7 @@
 		AA81A9E71BE90F8600688763 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA81A9EA1BE90F8600688763 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AA81A9EC1BE90F8600688763 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA81A9F21BE94D0B00688763 /* EventedConn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventedConn.swift; sourceTree = "<group>"; };
 		CB7923AFA10F5B52C39A8FAC /* Pods-swift-client-v2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-swift-client-v2.debug.xcconfig"; path = "Pods/Target Support Files/Pods-swift-client-v2/Pods-swift-client-v2.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -79,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				AA81A9E01BE90F8600688763 /* AppDelegate.swift */,
+				AA81A9F21BE94D0B00688763 /* EventedConn.swift */,
 				AA81A9E21BE90F8600688763 /* ViewController.swift */,
 				AA81A9E41BE90F8600688763 /* Main.storyboard */,
 				AA81A9E71BE90F8600688763 /* Assets.xcassets */,
@@ -212,6 +215,7 @@
 			files = (
 				AA81A9E31BE90F8600688763 /* ViewController.swift in Sources */,
 				AA81A9E11BE90F8600688763 /* AppDelegate.swift in Sources */,
+				AA81A9F31BE94D0B00688763 /* EventedConn.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

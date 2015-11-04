@@ -19,27 +19,42 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2wj-mJ-Oct">
-                                <rect key="frame" x="20" y="20" width="202" height="30"/>
+                                <rect key="frame" x="20" y="20" width="141" height="30"/>
                                 <animations/>
-                                <state key="normal" title="Simple Instrumented Request"/>
+                                <state key="normal" title="Simple GET example"/>
                                 <connections>
                                     <action selector="simpleRequestPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gDB-Uy-DlF"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QLD-fS-4Fn">
+                                <rect key="frame" x="20" y="58" width="135" height="30"/>
+                                <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="135" id="v8y-Zg-ePU"/>
+                                </constraints>
+                                <state key="normal" title="Time TCP Request"/>
+                                <connections>
+                                    <action selector="timeTcpPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="x47-5g-4h0"/>
                                 </connections>
                             </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="2wj-mJ-Oct" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="QoI-Jc-IpW"/>
-                            <constraint firstItem="2wj-mJ-Oct" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="U6X-ib-dn7"/>
+                            <constraint firstItem="QLD-fS-4Fn" firstAttribute="leading" secondItem="2wj-mJ-Oct" secondAttribute="leading" id="gTm-Q3-hS8"/>
+                            <constraint firstItem="QLD-fS-4Fn" firstAttribute="top" secondItem="2wj-mJ-Oct" secondAttribute="bottom" constant="8" symbolic="YES" id="nqH-jS-AMC"/>
+                            <constraint firstItem="2wj-mJ-Oct" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="t8M-Jv-xlq"/>
+                            <constraint firstItem="2wj-mJ-Oct" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="zke-fT-cAj"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="simpleRequestButton" destination="2wj-mJ-Oct" id="Sup-gs-yXc"/>
+                        <outlet property="timeTcpButton" destination="QLD-fS-4Fn" id="jvI-WV-QiG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="215" y="387"/>
         </scene>
     </scenes>
 </document>

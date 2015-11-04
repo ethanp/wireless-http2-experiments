@@ -12,17 +12,46 @@ import SwiftyJSON
 
 class ViewController: UIViewController {
 
+    // MARK: Lifecycle
     // Do any additional setup after loading the view
     override func viewDidLoad() {
         super.viewDidLoad()
     }
     
+    // MARK: UI Elements
     @IBOutlet weak var simpleRequestButton: UIButton!
+    @IBOutlet weak var timeTcpButton: UIButton!
     
+    // MARK: Attributes
+    lazy var dateFormatter: NSDateFormatter = {
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "HH:mm:ss:SSS"
+        return dateFormatter
+    }(/*Swift syntax!*/)
+
+    let conn = EventedConn()
+    
+    // MARK: Button Responses
     @IBAction func simpleRequestPressed(sender: UIButton) {
-        uploadData(JSON(3))
+        sampleGET()
+    }
+
+    @IBAction func timeTcpPressed(sender: UIButton) {
+        /* TODO: I WANT to collect the following DATA
+            1. [DONE] Begin
+            2. Connected
+            3. First byte
+            4. Last byte
+            5. Closed
+        */
+        let starttime = NSDate().timeIntervalSince1970
+
+        conn.connect("localhost", port:12345)
+        print("leaving tcp pressed handler")
+        print(NSDate().timeIntervalSince1970 - starttime)
     }
     
+    // MARK: Example Implementations
     func sampleGET() {
         Alamofire.request(.GET, "http://httpbin.org/get", parameters: ["foo": "bar"])
             .responseJSON { response in
@@ -37,15 +66,10 @@ class ViewController: UIViewController {
         }
     }
     
-    // `lazy var` so that we can configure it on initialization ?
-    lazy var dateFormatter: NSDateFormatter = {
-        let dateFormatter = NSDateFormatter()
-        dateFormatter.dateFormat = "HH:mm:ss:SSS"
-        return dateFormatter
-    }(/*Swift syntax!*/)
-    
-    func dateString() -> String {
-        return self.dateFormatter.stringFromDate(NSDate())
+    func jsonDictExample() -> [String:AnyObject] {
+        let d2 = ["asdf": 1234, "bsdf": 2345]
+        let d1 = ["title": "TCP Vary", "start": dateString(), "cons": d2]
+        return d1 as! [String : AnyObject]
     }
 
     // TODO
@@ -56,25 +80,32 @@ class ViewController: UIViewController {
     // TODO as it is this thing takes a dict and converts it to json under the
     // hood there may be something else I need to do if I want to pass a JSON
     // obj directly to this method
-    func uploadData(data: JSON) {
-        let parameters = [
-            "foo": [1,2,3],
-            "bar": [
-                "baz": "qux"
-            ]
-        ]
+    func uploadData(data: [String:AnyObject]) {
+        //        let parameters = [
+        //            "foo": [1,2,3],
+        //            "bar": [
+        //                "baz": "qux"
+        //            ]
+        //        ]
+        
         print("uploading")
-        Alamofire.request(.POST, "http://localhost:4567/data", parameters: parameters, encoding: .JSON).responseJSON { response in
-            debugPrint(response)
+        
+        Alamofire.request(
+            .POST,
+            "http://localhost:4567/data",
+            //            parameters: parameters,
+            parameters: data,
+            encoding: .JSON
+            ).responseJSON { response in
+                debugPrint(response)
         }
         // HTTP body: {"foo": [1, 2, 3], "bar": {"baz": "qux"}}
     }
+
     
-    func jsonExample() {
-        let d2 = ["asdf": 1234, "bsdf": 2345]
-        let d1 = ["title": "TCP Vary", "start": dateString(), "cons": d2]
-        let json = JSON(d1)
-        print(json)
+    // MARK: Utilities
+    func dateString() -> String {
+        return self.dateFormatter.stringFromDate(NSDate())
     }
 }
 
