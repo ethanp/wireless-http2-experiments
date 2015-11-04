@@ -9,6 +9,7 @@
 import UIKit
 import Alamofire
 import SwiftyJSON
+import Async
 
 class ViewController: UIViewController {
 
@@ -27,7 +28,7 @@ class ViewController: UIViewController {
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "HH:mm:ss:SSS"
         return dateFormatter
-    }(/*Swift syntax!*/)
+    }()
 
     let conn = EventedConn()
     
@@ -36,31 +37,42 @@ class ViewController: UIViewController {
         sampleGET()
     }
 
+    /** this just does ONE tcp connection */
     @IBAction func timeTcpPressed(sender: UIButton) {
-        /* TODO: I WANT to collect the following DATA
-            1. [DONE] Begin
+        /* TODO collect the following DATA
+            1. Begin
             2. Connected
             3. First byte
             4. Last byte
             5. Closed
+        
+            Then send it to the dataserver.rb
         */
-        let starttime = NSDate().timeIntervalSince1970
-
-        conn.connect("localhost", port:12345, bytesToDwnld: 5)
-        print("leaving tcp pressed handler")
-        print(NSDate().timeIntervalSince1970 - starttime)
+//        conn.connect("localhost", port:12345, size: 5)
+//        let result = conn.close()
+        
+        // Start 10 threads as "interactive" QoS that each run the given block.
+        // NB: Entire Apply.bg {} function is SYNCHRONOUS. Otw wrap with Async.
+        Apply.userInteractive(10) { i in
+            let c = EventedConn()
+            c.connect("localhost", port: 12345+i, size: 12)
+            print("hello from interactive \(i)")
+        }
+        
+        // looks like this doesn't execute until all Apply'd blocks finish
+        print("returning")
     }
     
     // MARK: Example Implementations
     func sampleGET() {
         Alamofire.request(.GET, "http://httpbin.org/get", parameters: ["foo": "bar"])
-            .responseJSON { response in
-                print(response.request)  // original URL request
-                print(response.response) // URL response
-                print(response.data)     // server data
-                print(response.result)   // result of response serialization
+            .responseJSON { res in
+                print(res.request)  // original URL request
+                print(res.response) // URL response
+                print(res.data)     // server data
+                print(res.result)   // result of response serialization
                 
-                if let json = response.result.value {
+                if let json = res.result.value {
                     print("JSON: \(json)")
                 }
         }
