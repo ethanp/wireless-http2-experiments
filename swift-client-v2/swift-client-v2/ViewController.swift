@@ -11,7 +11,9 @@ import Alamofire
 import SwiftyJSON
 import Async
 
-class ViewController: UIViewController {
+typealias Results = [TcpLifecycleEvent: NSTimeInterval]
+
+class ViewController: UIViewController, ResultMgr {
 
     // MARK: Lifecycle
     // Do any additional setup after loading the view
@@ -30,7 +32,9 @@ class ViewController: UIViewController {
         return dateFormatter
     }()
 
-    let conn = EventedConn()
+    var conns = [EventedConn]()
+    var results = [Results]()
+    
     
     // MARK: Button Responses
     @IBAction func simpleRequestPressed(sender: UIButton) {
@@ -48,19 +52,14 @@ class ViewController: UIViewController {
         
             Then send it to the dataserver.rb
         */
-//        conn.connect("localhost", port:12345, size: 5)
-//        let result = conn.close()
-        
-        // Start 10 threads as "interactive" QoS that each run the given block.
-        // NB: Entire Apply.bg {} function is SYNCHRONOUS. Otw wrap with Async.
-        Apply.userInteractive(10) { i in
-            let c = EventedConn()
-            c.connect("localhost", port: 12345+i, size: 12)
-            print("hello from interactive \(i)")
-        }
-        
-        // looks like this doesn't execute until all Apply'd blocks finish
-        print("returning")
+        let conn = EventedConn(resultMgr: self)
+        self.conns.append(conn)
+        conn.connect("localhost", port:12345, size: 5)
+    }
+    
+    func addResult(result: Results) {
+        results.append(result)
+        print("added result \(result)")
     }
     
     // MARK: Example Implementations

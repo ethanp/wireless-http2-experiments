@@ -10,6 +10,17 @@
 
 import Foundation
 
+enum TcpLifecycleEvent {
+    case START
+    case OPEN
+    case FIRST_BYTE
+    case LAST_BYTE
+    case CLOSED
+}
+
+protocol ResultMgr {
+    func addResult(result: Results)
+}
 class EventedConn: NSObject, NSStreamDelegate {
 
     var host:String?
@@ -18,16 +29,13 @@ class EventedConn: NSObject, NSStreamDelegate {
     var inputStream: NSInputStream?
     var outputStream: NSOutputStream?
     var collectedData = [TcpLifecycleEvent: NSTimeInterval]()
-
-    enum TcpLifecycleEvent {
-        case START
-        case OPEN
-        case FIRST_BYTE
-        case LAST_BYTE
-        case CLOSED
-    }
-
+    var resultMgr: ResultMgr?
+    
     var bytesRcvd = 0
+    
+    init(resultMgr: ResultMgr) {
+        self.resultMgr = resultMgr
+    }
 
     func connect(host: String, port: Int, size bytesToDwnld: Int) {
 
@@ -81,13 +89,16 @@ class EventedConn: NSObject, NSStreamDelegate {
                 // read bytes available
                 var inbuf = [UInt8](count: 8, repeatedValue: 0)
                 let numBytesRcvd: Int = inputStream!.read(&inbuf, maxLength: 8)
+                if (numBytesRcvd == -1) {
+                    fatalError("input stream was closed prematurely (presumably by the server)")
+                }
                 print("\(numBytesRcvd), \(inbuf.prefix(numBytesRcvd))")
                 bytesRcvd += numBytesRcvd
 
                 // note last byte
                 if bytesRcvd >= bytesToDwnld {
                     collectedData[TcpLifecycleEvent.LAST_BYTE] = timeAsInterval()
-                    print(collectedData)
+                    resultMgr?.addResult(collectedData)
                 }
 
             default:
@@ -118,7 +129,7 @@ class EventedConn: NSObject, NSStreamDelegate {
         return NSDate().timeIntervalSince1970
     }
 
-    func close() -> [TcpLifecycleEvent: NSTimeInterval] {
+func close() -> [TcpLifecycleEvent: NSTimeInterval] {
         inputStream?.close()
         outputStream?.close()
         return collectedData
