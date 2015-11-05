@@ -13,7 +13,7 @@ import Async
 
 typealias Results = [TcpLifecycleEvent: NSTimeInterval]
 
-class ViewController: UIViewController, ResultMgr {
+class ViewController: UIViewController {
 
     // MARK: Lifecycle
     // Do any additional setup after loading the view
@@ -24,6 +24,7 @@ class ViewController: UIViewController, ResultMgr {
     // MARK: UI Elements
     @IBOutlet weak var simpleRequestButton: UIButton!
     @IBOutlet weak var timeTcpButton: UIButton!
+    @IBOutlet weak var fiveTcpsButton: UIButton!
     
     // MARK: Attributes
     lazy var dateFormatter: NSDateFormatter = {
@@ -31,35 +32,56 @@ class ViewController: UIViewController, ResultMgr {
         dateFormatter.dateFormat = "HH:mm:ss:SSS"
         return dateFormatter
     }()
-
-    var conns = [EventedConn]()
-    var results = [Results]()
     
+    let singleTcpBenchmarker = TcpBenchmarker(syncCount: 1)
+    let fiveTcpBenchmarker = TcpBenchmarker(syncCount: 5)
     
     // MARK: Button Responses
     @IBAction func simpleRequestPressed(sender: UIButton) {
         sampleGET()
     }
-
+    
     /** this just does ONE tcp connection */
     @IBAction func timeTcpPressed(sender: UIButton) {
-        /* TODO collect the following DATA
-            1. Begin
-            2. Connected
-            3. First byte
-            4. Last byte
-            5. Closed
-        
-            Then send it to the dataserver.rb
-        */
-        let conn = EventedConn(resultMgr: self)
-        self.conns.append(conn)
-        conn.connect("localhost", port:12345, size: 5)
+        singleTcpBenchmarker.dododoYourThangHoney()
     }
     
-    func addResult(result: Results) {
-        results.append(result)
-        print("added result \(result)")
+    @IBAction func time5TcpsPressed(sender: UIButton) {
+        fiveTcpBenchmarker.dododoYourThangHoney()
+    }
+    
+    class TcpBenchmarker: ResultMgr {
+
+        var conns = [EventedConn]()
+        var results = [Results]()
+        var syncCount: Int?
+        var done = 0
+        
+        init(syncCount: Int) {
+            self.syncCount = syncCount
+            self.results = Array<Results>(count: syncCount, repeatedValue: [:])
+            for _ in 1...syncCount {
+                self.conns.append(EventedConn(resultMgr: self))
+            }
+        }
+        
+        func dododoYourThangHoney() {
+            for i in 0...syncCount!-1 {
+                print("getting index \(i)")
+                self.conns[i].connect("localhost", port:12345+i, size: 5)
+            }
+        }
+        
+        // TODO if the server has too much data, this doesn't happen at the right time
+        // I should just make it read until it can't read no more
+        func addResult(result: Results, forIndex i: Int) {
+            results[i] = result
+            print("added result \(result) to \(i)")
+            done++
+            if done == syncCount {
+                print("got a bunch of results for ya, see: \(results)")
+            }
+        }
     }
     
     // MARK: Example Implementations

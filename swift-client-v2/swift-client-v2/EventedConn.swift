@@ -19,7 +19,7 @@ enum TcpLifecycleEvent {
 }
 
 protocol ResultMgr {
-    func addResult(result: Results)
+    func addResult(result: Results, forIndex i: Int)
 }
 class EventedConn: NSObject, NSStreamDelegate {
 
@@ -34,6 +34,7 @@ class EventedConn: NSObject, NSStreamDelegate {
     var bytesRcvd = 0
     
     init(resultMgr: ResultMgr) {
+        print("creating EventedConn")
         self.resultMgr = resultMgr
     }
 
@@ -43,6 +44,7 @@ class EventedConn: NSObject, NSStreamDelegate {
         self.port = port
         self.bytesToDwnld = bytesToDwnld
 
+        print("connecting i = \(port)")
         // Note: typealias NSTimeInterval = Double
         collectedData[TcpLifecycleEvent.START] = timeAsInterval()
         NSStream.getStreamsToHostWithName(
@@ -64,6 +66,8 @@ class EventedConn: NSObject, NSStreamDelegate {
             print("ERROR: couldn't acquire stream!")
         }
     }
+    
+    func j() -> Int { return port!-12345 }
 
     func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
         if aStream === inputStream {
@@ -98,7 +102,7 @@ class EventedConn: NSObject, NSStreamDelegate {
                 // note last byte
                 if bytesRcvd >= bytesToDwnld {
                     collectedData[TcpLifecycleEvent.LAST_BYTE] = timeAsInterval()
-                    resultMgr?.addResult(collectedData)
+                    resultMgr?.addResult(collectedData, forIndex: port!-12345)
                 }
 
             default:

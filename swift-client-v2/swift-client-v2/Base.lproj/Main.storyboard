@@ -32,15 +32,25 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="135" id="v8y-Zg-ePU"/>
                                 </constraints>
-                                <state key="normal" title="Time TCP Request"/>
+                                <state key="normal" title="Single TCP Request"/>
                                 <connections>
                                     <action selector="timeTcpPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="x47-5g-4h0"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NMX-CV-bKU">
+                                <rect key="frame" x="20" y="96" width="110" height="30"/>
+                                <animations/>
+                                <state key="normal" title="5 TCP Requests"/>
+                                <connections>
+                                    <action selector="time5TcpsPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Oav-R4-eCU"/>
                                 </connections>
                             </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="NMX-CV-bKU" firstAttribute="top" secondItem="QLD-fS-4Fn" secondAttribute="bottom" constant="8" symbolic="YES" id="6ap-gK-ASo"/>
+                            <constraint firstItem="NMX-CV-bKU" firstAttribute="leading" secondItem="QLD-fS-4Fn" secondAttribute="leading" id="KQe-wl-etO"/>
                             <constraint firstItem="QLD-fS-4Fn" firstAttribute="leading" secondItem="2wj-mJ-Oct" secondAttribute="leading" id="gTm-Q3-hS8"/>
                             <constraint firstItem="QLD-fS-4Fn" firstAttribute="top" secondItem="2wj-mJ-Oct" secondAttribute="bottom" constant="8" symbolic="YES" id="nqH-jS-AMC"/>
                             <constraint firstItem="2wj-mJ-Oct" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="t8M-Jv-xlq"/>
@@ -48,6 +58,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="fiveTcpsButton" destination="NMX-CV-bKU" id="ZML-O8-UF0"/>
                         <outlet property="simpleRequestButton" destination="2wj-mJ-Oct" id="Sup-gs-yXc"/>
                         <outlet property="timeTcpButton" destination="QLD-fS-4Fn" id="jvI-WV-QiG"/>
                     </connections>
