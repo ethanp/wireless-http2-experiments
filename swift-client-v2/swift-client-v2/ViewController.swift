@@ -12,6 +12,7 @@ import SwiftyJSON
 import Async
 
 typealias Results = [TcpLifecycleEvent: NSTimeInterval]
+let BASE_PORT = 12345
 
 class ViewController: UIViewController {
 
@@ -43,45 +44,11 @@ class ViewController: UIViewController {
     
     /** this just does ONE tcp connection */
     @IBAction func timeTcpPressed(sender: UIButton) {
-        singleTcpBenchmarker.dododoYourThangHoney()
+        singleTcpBenchmarker.collectAndUploadResults()
     }
     
     @IBAction func time5TcpsPressed(sender: UIButton) {
-        fiveTcpBenchmarker.dododoYourThangHoney()
-    }
-    
-    class TcpBenchmarker: ResultMgr {
-
-        var conns = [EventedConn]()
-        var results = [Results]()
-        var syncCount: Int?
-        var done = 0
-        
-        init(syncCount: Int) {
-            self.syncCount = syncCount
-            self.results = Array<Results>(count: syncCount, repeatedValue: [:])
-            for _ in 1...syncCount {
-                self.conns.append(EventedConn(resultMgr: self))
-            }
-        }
-        
-        func dododoYourThangHoney() {
-            for i in 0...syncCount!-1 {
-                print("getting index \(i)")
-                self.conns[i].connect("localhost", port:12345+i, size: 5)
-            }
-        }
-        
-        // TODO if the server has too much data, this doesn't happen at the right time
-        // I should just make it read until it can't read no more
-        func addResult(result: Results, forIndex i: Int) {
-            results[i] = result
-            print("added result \(result) to \(i)")
-            done++
-            if done == syncCount {
-                print("got a bunch of results for ya, see: \(results)")
-            }
-        }
+        fiveTcpBenchmarker.collectAndUploadResults()
     }
     
     // MARK: Example Implementations

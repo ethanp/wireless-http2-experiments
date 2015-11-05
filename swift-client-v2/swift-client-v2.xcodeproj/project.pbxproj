@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8F3A7B1F5B199E0DC3012242 /* Pods_swift_client_v2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BE79DB84E3F13B823D36ACB /* Pods_swift_client_v2.framework */; };
+		AA77C67B1BEAF340002CB390 /* TcpBenchmarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA77C67A1BEAF340002CB390 /* TcpBenchmarker.swift */; };
 		AA81A9E11BE90F8600688763 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA81A9E01BE90F8600688763 /* AppDelegate.swift */; };
 		AA81A9E31BE90F8600688763 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA81A9E21BE90F8600688763 /* ViewController.swift */; };
 		AA81A9E61BE90F8600688763 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA81A9E41BE90F8600688763 /* Main.storyboard */; };
@@ -19,6 +20,7 @@
 /* Begin PBXFileReference section */
 		0FAC72C0A0A4564BBB0291EE /* Pods-swift-client-v2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-swift-client-v2.release.xcconfig"; path = "Pods/Target Support Files/Pods-swift-client-v2/Pods-swift-client-v2.release.xcconfig"; sourceTree = "<group>"; };
 		4BE79DB84E3F13B823D36ACB /* Pods_swift_client_v2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_swift_client_v2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA77C67A1BEAF340002CB390 /* TcpBenchmarker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TcpBenchmarker.swift; sourceTree = "<group>"; };
 		AA81A9DD1BE90F8600688763 /* swift-client-v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-client-v2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA81A9E01BE90F8600688763 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AA81A9E21BE90F8600688763 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 		AA81A9DF1BE90F8600688763 /* swift-client-v2 */ = {
 			isa = PBXGroup;
 			children = (
+				AA77C67A1BEAF340002CB390 /* TcpBenchmarker.swift */,
 				AA81A9E01BE90F8600688763 /* AppDelegate.swift */,
 				AA81A9F21BE94D0B00688763 /* EventedConn.swift */,
 				AA81A9E21BE90F8600688763 /* ViewController.swift */,
@@ -214,6 +217,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA81A9E31BE90F8600688763 /* ViewController.swift in Sources */,
+				AA77C67B1BEAF340002CB390 /* TcpBenchmarker.swift in Sources */,
 				AA81A9E11BE90F8600688763 /* AppDelegate.swift in Sources */,
 				AA81A9F31BE94D0B00688763 /* EventedConn.swift in Sources */,
 			);

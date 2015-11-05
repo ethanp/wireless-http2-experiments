@@ -28,13 +28,12 @@ class EventedConn: NSObject, NSStreamDelegate {
     var bytesToDwnld:Int?
     var inputStream: NSInputStream?
     var outputStream: NSOutputStream?
-    var collectedData = [TcpLifecycleEvent: NSTimeInterval]()
+    var collectedData = Results()
     var resultMgr: ResultMgr?
     
     var bytesRcvd = 0
     
     init(resultMgr: ResultMgr) {
-        print("creating EventedConn")
         self.resultMgr = resultMgr
     }
 
@@ -46,7 +45,7 @@ class EventedConn: NSObject, NSStreamDelegate {
 
         print("connecting i = \(port)")
         // Note: typealias NSTimeInterval = Double
-        collectedData[TcpLifecycleEvent.START] = timeAsInterval()
+        collectedData[TcpLifecycleEvent.START] = now()
         NSStream.getStreamsToHostWithName(
             host,
             port: port,
@@ -67,9 +66,12 @@ class EventedConn: NSObject, NSStreamDelegate {
         }
     }
     
-    func j() -> Int { return port!-12345 }
+    /** This `EventedConn` is meant to connect to the "j^th" TCP server */
+    func j() -> Int { return port!-BASE_PORT }
 
     func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
+
+        // triple-equals means reference-equality
         if aStream === inputStream {
             switch eventCode {
 
@@ -80,20 +82,23 @@ class EventedConn: NSObject, NSStreamDelegate {
                 print("input: OpenCompleted")
 
                 // note stream is open
-                collectedData[TcpLifecycleEvent.OPEN] = timeAsInterval()
+                collectedData[TcpLifecycleEvent.OPEN] = now()
 
+            // TODO: this is buggy. 
+            // If there are > 8 bytes available,
+            // I don't read them!
             case NSStreamEvent.HasBytesAvailable:
                 print("input: HasBytesAvailable")
 
                 // note first byte
                 if bytesRcvd == 0 {
-                    collectedData[TcpLifecycleEvent.FIRST_BYTE] = timeAsInterval()
+                    collectedData[TcpLifecycleEvent.FIRST_BYTE] = now()
                 }
 
                 // read bytes available
                 var inbuf = [UInt8](count: 8, repeatedValue: 0)
                 let numBytesRcvd: Int = inputStream!.read(&inbuf, maxLength: 8)
-                if (numBytesRcvd == -1) {
+                if numBytesRcvd == -1 {
                     fatalError("input stream was closed prematurely (presumably by the server)")
                 }
                 print("\(numBytesRcvd), \(inbuf.prefix(numBytesRcvd))")
@@ -101,35 +106,30 @@ class EventedConn: NSObject, NSStreamDelegate {
 
                 // note last byte
                 if bytesRcvd >= bytesToDwnld {
-                    collectedData[TcpLifecycleEvent.LAST_BYTE] = timeAsInterval()
-                    resultMgr?.addResult(collectedData, forIndex: port!-12345)
+                    collectedData[TcpLifecycleEvent.LAST_BYTE] = now()
+                    resultMgr?.addResult(collectedData, forIndex: j())
                 }
 
             default:
                 break
             }
         }
-        else if aStream === outputStream {
-            switch eventCode {
-
-            case NSStreamEvent.ErrorOccurred:
-                print("output: ErrorOccurred: \(aStream.streamError?.description)")
-
-            case NSStreamEvent.OpenCompleted:
-                print("output: OpenCompleted")
-
-            case NSStreamEvent.HasSpaceAvailable:
-                print("output: HasSpaceAvailable")
-
-                // Here you can write() to `outputStream`
-
-            default:
-                break
-            }
-        }
+//        else if aStream === outputStream {
+//            switch eventCode {
+//            case NSStreamEvent.ErrorOccurred:
+//                print("output: ErrorOccurred: \(aStream.streamError?.description)")
+//            case NSStreamEvent.OpenCompleted:
+//                print("output: OpenCompleted")
+//            case NSStreamEvent.HasSpaceAvailable:
+//                print("output: HasSpaceAvailable")
+//                // Here you can write() to `outputStream`
+//            default:
+//                break
+//            }
+//        }
     }
 
-    func timeAsInterval() -> NSTimeInterval {
+    func now() -> NSTimeInterval {
         return NSDate().timeIntervalSince1970
     }
 
