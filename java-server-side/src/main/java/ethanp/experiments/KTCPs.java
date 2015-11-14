@@ -15,6 +15,9 @@ import java.util.concurrent.Executors;
  *
  * The point of this class is to provide an interface to send a large file via "k" concurrent
  * TCP connections, for any given value of "k".
+ *
+ * NOTA BENE: the first time each of the constructed servers gets hit, it takes ~50x LONGER (!)
+ *            to respond (pero por qué?)
  */
 public class KTCPs {
 
@@ -38,6 +41,7 @@ public class KTCPs {
         }
     }
 
+    // TODO this doesn't work
     public void cancel() {
         System.out.println("KTCPs cancelled");
         // calls interrupt() on all the constituent threads
@@ -50,11 +54,10 @@ public class KTCPs {
      * on connect, send data immediately
      * time how long this takes (server side time taken)
      */
-    static class NonPersistent implements Runnable {
+    static class NonPersistent extends Thread {
 
         int numBytes;
         int port;
-        boolean isServing;
 
         NonPersistent(int port, int numBytes) {
             this.port = port;
@@ -68,8 +71,7 @@ public class KTCPs {
         @Override public void run() {
             try (ServerSocket serverSocket = new ServerSocket(port)) {
                 System.out.println("serving "+numBytes+" bytes at port "+port);
-                isServing = true;
-                while (isServing) {
+                while (!this.isInterrupted()) {
                     Socket clientSocket = serverSocket.accept();
                     long start = System.nanoTime();
                     try (OutputStream os = clientSocket.getOutputStream()) {
@@ -82,6 +84,7 @@ public class KTCPs {
                     long end = System.nanoTime();
                     System.out.println("server at "+port+" took "+(end-start)+" ns");
                 }
+                System.out.println("server at "+port+" was interrupted");
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -91,10 +94,11 @@ public class KTCPs {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        final int FOUR_MEGS = 1 << 22;
         KTCPs a = new KTCPsBuilder()
             .servers(5)
             .firstPort(12345)
-            .bytesPerConn(2500)
+            .bytesPerConn(FOUR_MEGS)
             .build();
 
         Thread.sleep(30000);

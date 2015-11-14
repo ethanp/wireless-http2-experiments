@@ -41,8 +41,12 @@ class TcpBenchmarker: ResultMgr {
     /** how many TCP servers we have finished collecting performance data for */
     var done = 0
     
-    init(syncCount: Int) {
+    var bytesToDwnld: Int?
+    
+    init(syncCount: Int, bytesToDwnld: Int) {
         self.syncCount = syncCount
+        self.bytesToDwnld = bytesToDwnld
+        
         for _ in 1...syncCount {
             conns.append(EventedConn(resultMgr: self))
             results.append([:])
@@ -58,8 +62,12 @@ class TcpBenchmarker: ResultMgr {
      */
     func collectAndUploadResults() {
         print("collecting results")
-        for i in 0...syncCount!-1 {
-            self.conns[i].recordDataFor("localhost", onPort:BASE_PORT+i, bytesToDwnld: 5)
+        for i in 0..<syncCount! {
+            self.conns[i].recordDataFor(
+                "localhost",
+                onPort:BASE_PORT+i,
+                bytesToDwnld: bytesToDwnld!
+            )
         }
     }
     

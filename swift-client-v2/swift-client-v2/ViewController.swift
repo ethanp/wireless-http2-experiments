@@ -34,8 +34,8 @@ class ViewController: UIViewController {
         return dateFormatter
     }()
     
-    let singleTcpBenchmarker = TcpBenchmarker(syncCount: 1)
-    let fiveTcpBenchmarker = TcpBenchmarker(syncCount: 5)
+    let singleTcpBenchmarker = TcpBenchmarker(syncCount: 1, bytesToDwnld: 6)
+    let fiveTcpBenchmarker = TcpBenchmarker(syncCount: 5, bytesToDwnld: 6)
     
     // MARK: Button Responses
     @IBAction func simpleRequestPressed(sender: UIButton) {
@@ -50,6 +50,20 @@ class ViewController: UIViewController {
     @IBAction func time5TcpsPressed(sender: UIButton) {
         fiveTcpBenchmarker.collectAndUploadResults()
     }
+    
+    
+    // TODO: incorporate this badboy
+    func exploreTheSpace() {
+        // I want the amount of data downloaded to grow EXPONENTIALLY
+        // from 1 Byte to 250 MBytes
+        for i in 1...28 {
+            let size = 1 << i
+            currentBenchmarker = TcpBenchmarker(syncCount: 1, bytesToDwnld: size)
+            currentBenchmarker!.collectAndUploadResults()
+        }
+    }
+    
+    var currentBenchmarker: TcpBenchmarker?
     
     // MARK: Example Implementations
     func sampleGET() {
