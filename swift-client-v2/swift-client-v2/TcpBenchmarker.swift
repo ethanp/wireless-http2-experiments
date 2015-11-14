@@ -9,6 +9,10 @@
 import Foundation
 
 /**
+ 
+ TODO: make a renew() function or something so this thing drops all its
+       data and can be re-used
+ 
  What this does is
  
  1. Connects to `syncCount` TCP servers at ports
@@ -53,19 +57,21 @@ class TcpBenchmarker: ResultMgr {
      3. uploads collected data to `dataserver.rb`
      */
     func collectAndUploadResults() {
-        for i in 1...syncCount! {
-            self.conns[i-1].connect("localhost", port:BASE_PORT+i-1, size: 5)
+        print("collecting results")
+        for i in 0...syncCount!-1 {
+            self.conns[i].recordDataFor("localhost", onPort:BASE_PORT+i, bytesToDwnld: 5)
         }
     }
     
-    // TODO: if the server has too much data, this doesn't happen at the right time
-    // I should just make it read until it can't read no more
+    /** called by the EventedConn as part of implementing the `
+        ResultMgr` protocol.
+    */
     func addResult(result: Results, forIndex i: Int) {
         results[i] = result
         print("added result \(result) to \(i)")
         done++
         if done == syncCount {
-            print("got a bunch of results for ya, see: \(results)")
+            print("TODO: uploading results")
             // TODO: this is where I upload the results to the DataServer
         }
     }

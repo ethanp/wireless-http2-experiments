@@ -11,7 +11,7 @@ import Alamofire
 import SwiftyJSON
 import Async
 
-typealias Results = [TcpLifecycleEvent: NSTimeInterval]
+typealias Results = [TcpLifecycleEvent: Int]
 let BASE_PORT = 12345
 
 class ViewController: UIViewController {

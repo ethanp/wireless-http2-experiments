@@ -37,7 +37,15 @@ class EventedConn: NSObject, NSStreamDelegate {
         self.resultMgr = resultMgr
     }
 
-    func connect(host: String, port: Int, size bytesToDwnld: Int) {
+    /** This function opens TCP streams to the given address and returns.
+        Asynchronously, this object receives bytes over those streams.
+        Eventually it downloads `bytesToDwnld` bytes, and finishes adding
+        entries into `collectedData: Results`.
+     
+        What it SHOULD be like is that `record(callback)` function that
+        the other guy wrote.
+    */
+    func recordDataFor(host: String, onPort port: Int, bytesToDwnld: Int) {
 
         self.host = host
         self.port = port
@@ -45,7 +53,9 @@ class EventedConn: NSObject, NSStreamDelegate {
 
         print("connecting i = \(port)")
         // Note: typealias NSTimeInterval = Double
-        collectedData[TcpLifecycleEvent.START] = now()
+        timestampEvent(TcpLifecycleEvent.START)
+        
+        // TODO: I'm having trouble figuring out what EXACTLY this does
         NSStream.getStreamsToHostWithName(
             host,
             port: port,
@@ -69,45 +79,73 @@ class EventedConn: NSObject, NSStreamDelegate {
     /** This `EventedConn` is meant to connect to the "j^th" TCP server */
     func j() -> Int { return port!-BASE_PORT }
 
+    /** Reads incoming data off the inStream.
+     
+        Calls `resultMgr!.addResult(collectedData, forIndex: j())` once
+        bytesToDwnld bytes have been downloaded.
+    */
     func stream(aStream: NSStream, handleEvent eventCode: NSStreamEvent) {
 
-        // triple-equals means reference-equality
+        // triple-equals means *reference*-equality
         if aStream === inputStream {
             switch eventCode {
 
             case NSStreamEvent.ErrorOccurred:
-                print("input: ErrorOccurred: \(aStream.streamError?.description)")
+                print("input j = \(j()): ErrorOccurred: \(aStream.streamError?.description)")
 
             case NSStreamEvent.OpenCompleted:
-                print("input: OpenCompleted")
+                print("input j = \(j()): OpenCompleted")
 
                 // note stream is open
-                collectedData[TcpLifecycleEvent.OPEN] = now()
+                timestampEvent(TcpLifecycleEvent.OPEN)
 
             // TODO: this is buggy. 
             // If there are > 8 bytes available,
             // I don't read them!
             case NSStreamEvent.HasBytesAvailable:
                 print("input: HasBytesAvailable")
+                
+                // forget about reading more bytes than we need
+                if bytesRcvd < bytesToDwnld, let iss = inputStream {
 
-                // note first byte
-                if bytesRcvd == 0 {
-                    collectedData[TcpLifecycleEvent.FIRST_BYTE] = now()
-                }
+                    // note first byte
+                    if bytesRcvd == 0 {
+                        timestampEvent(TcpLifecycleEvent.FIRST_BYTE)
+                    }
 
-                // read bytes available
-                var inbuf = [UInt8](count: 8, repeatedValue: 0)
-                let numBytesRcvd: Int = inputStream!.read(&inbuf, maxLength: 8)
-                if numBytesRcvd == -1 {
-                    fatalError("input stream was closed prematurely (presumably by the server)")
-                }
-                print("\(numBytesRcvd), \(inbuf.prefix(numBytesRcvd))")
-                bytesRcvd += numBytesRcvd
+                    // read bytes available
+                    // this len is used in the apple docs on "Reading from Input Streams"
+                    let BUFF_LEN = 1024
+                    var inbuf = [UInt8](count: BUFF_LEN, repeatedValue: 0)
+                    while iss.hasBytesAvailable && bytesRcvd < bytesToDwnld {
+                        
+                        /*
+                            * ret > 0: the number of bytes read;
+                            * ret = 0: the end of the buffer was reached;
+                            * ret < 0: the operation failed.
+                        */
+                        let numBytesRcvd: Int = iss.read(&inbuf, maxLength: BUFF_LEN)
+                        if numBytesRcvd == -1 {
+                            fatalError("input stream was closed prematurely (presumably by the server)")
+                        }
+                        print("rcvd \(numBytesRcvd) bytes, viz: \(inbuf.prefix(numBytesRcvd))")
+                        bytesRcvd += numBytesRcvd
+                    }
 
-                // note last byte
-                if bytesRcvd >= bytesToDwnld {
-                    collectedData[TcpLifecycleEvent.LAST_BYTE] = now()
-                    resultMgr?.addResult(collectedData, forIndex: j())
+                    // note last byte
+                    if bytesRcvd >= bytesToDwnld {
+                        timestampEvent(TcpLifecycleEvent.LAST_BYTE)
+
+                        // Not sure this actually closes TCP connection (or waits!),
+                        // but it may be easy to tell based on the time difference
+                        // between LAST_BYTE and CLOSED in the data.
+                        closeStreams()
+                        timestampEvent(TcpLifecycleEvent.CLOSED)
+                        
+                        resultMgr!.addResult(collectedData, forIndex: j())
+                    }
+                } else {
+                    print("ignoring data, j = \(j())")
                 }
 
             default:
@@ -128,14 +166,26 @@ class EventedConn: NSObject, NSStreamDelegate {
 //            }
 //        }
     }
-
-    func now() -> NSTimeInterval {
-        return NSDate().timeIntervalSince1970
-    }
-
-func close() -> [TcpLifecycleEvent: NSTimeInterval] {
+    
+    func closeStreams() {
         inputStream?.close()
         outputStream?.close()
-        return collectedData
+        inputStream?.removeFromRunLoop(.mainRunLoop(), forMode: NSDefaultRunLoopMode)
+        // https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/Streams/Articles/ReadingInputStreams.html
+        outputStream?.removeFromRunLoop(.mainRunLoop(), forMode: NSDefaultRunLoopMode)
+    }
+    
+    var START_TIME: Double! // `!` means it doesn't have to be init'd in init()
+    
+    func timestampEvent(event: TcpLifecycleEvent) {
+        if event == .START {
+            START_TIME = now()
+        }
+        collectedData[event] = Int((now() - START_TIME) * 1E6)
+    }
+
+    func now() -> NSTimeInterval {
+        // NSDate objects encapsulate a SINGLE point in time and are IMMUTABLE.
+        return NSDate().timeIntervalSince1970
     }
 }
