@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftyJSON
+import Alamofire
 
 /**
  
@@ -62,6 +63,44 @@ class TcpBenchmarker: ResultMgr {
         }
     }
     
+    // TODO: perhaps this should call a function on a DataUploader object
+    //       that can be reused across experiments
+    func uploadResults() {
+        let DATASERVER_PORT = 4567 // default Sinatra port is 4567
+        print("uploading reuslts")
+        let request = Alamofire.request(.POST,
+            "http://localhost:\(DATASERVER_PORT)/data",
+            parameters: ["\(syncCount!)": resultsConv()],
+            encoding: .JSON
+        )
+        debugPrint(request)
+    }
+    
+    private func resultsConv() -> [[String : Int]] {
+        var ugh = [[String:Int]]()
+        for resultData in results {
+            var dict = [String:Int]()
+            for (k, v) in resultData {
+                dict[k.stringName] = v
+            }
+            ugh.append(dict)
+        }
+        return ugh
+    }
+    
+    private func resultsAsJson() -> JSON {
+        // there must be a better way...
+        var forAllJson = [JSON]()
+        for resultData in results {
+            var dict = [String:JSON]()
+            for (k, v) in resultData {
+                dict[k.stringName] = JSON(v)
+            }
+            forAllJson.append(JSON(dict))
+        }
+        return JSON(forAllJson)
+    }
+    
     /** called by the EventedConn as part of implementing the `
         ResultMgr` protocol.
     */
@@ -70,21 +109,9 @@ class TcpBenchmarker: ResultMgr {
         print("added result \(result) to \(i)")
         done++
         if done == syncCount {
-            print("TODO: uploading results")
-            // TODO: this is where I upload the results to the DataServer
-            
-            // convert the data to JSON (there must be a better way)
-            var forAllJson = [JSON]()
-            for resultData in results {
-                var dict = [String:JSON]()
-                for (k, v) in resultData {
-                    dict[k.stringName] = JSON(v)
-                }
-                forAllJson.append(JSON(dict))
-            }
-            let json: JSON = JSON(forAllJson)
+            let json: JSON = resultsAsJson()
             print("json: \(json)")
-            
+            uploadResults()
         }
     }
 }
