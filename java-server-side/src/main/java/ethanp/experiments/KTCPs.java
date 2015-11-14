@@ -18,10 +18,10 @@ import java.util.concurrent.Executors;
  */
 public class KTCPs {
 
-    ExecutorService threadPool;
-    int firstPort;
-    int numServers;
-    int bytesSentPerConn;
+    final ExecutorService threadPool;
+    final int firstPort;
+    final int numServers;
+    final int bytesSentPerConn;
 
     public KTCPs(int numServers, int firstPort, int bytesSentPerConn) {
         assert numServers > 0 : "require at least one concurrent connection";
@@ -91,7 +91,12 @@ public class KTCPs {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        KTCPs a = new KTCPs(3, 4000, 25);
+        KTCPs a = new KTCPsBuilder()
+            .servers(5)
+            .firstPort(12345)
+            .bytesPerConn(2500)
+            .build();
+
         Thread.sleep(30000);
         a.cancel();
     }

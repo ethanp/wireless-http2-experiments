@@ -12,6 +12,7 @@ import Foundation
 
 enum TcpLifecycleEvent : String {
     case START = "START"
+    case START_TIME = "START_TIME"
     case OPEN = "OPEN"
     case FIRST_BYTE = "FIRST_BYTE"
     case LAST_BYTE = "LAST_BYTE"
@@ -126,12 +127,14 @@ class EventedConn: NSObject, NSStreamDelegate {
                     var inbuf = [UInt8](count: BUFF_LEN, repeatedValue: 0)
                     while iss.hasBytesAvailable && bytesRcvd < bytesToDwnld {
                         
+                        let bytesRemaining = bytesToDwnld! - bytesRcvd
+                        let bytesToRead = min(BUFF_LEN, bytesRemaining)
                         /*
                             * ret > 0: the number of bytes read;
                             * ret = 0: the end of the buffer was reached;
                             * ret < 0: the operation failed.
                         */
-                        let numBytesRcvd: Int = iss.read(&inbuf, maxLength: BUFF_LEN)
+                        let numBytesRcvd: Int = iss.read(&inbuf, maxLength: bytesToRead)
                         if numBytesRcvd == -1 {
                             fatalError("input stream was closed prematurely (presumably by the server)")
                         }
@@ -182,17 +185,25 @@ class EventedConn: NSObject, NSStreamDelegate {
         outputStream?.removeFromRunLoop(.mainRunLoop(), forMode: NSDefaultRunLoopMode)
     }
     
-    var START_TIME: Double! // `!` means it doesn't have to be init'd in init()
+    var START_TIME: Int! // `!` means it doesn't have to be init'd in init()
     
     func timestampEvent(event: TcpLifecycleEvent) {
         if event == .START {
             START_TIME = now()
+            collectedData[.START_TIME] = START_TIME
         }
-        collectedData[event] = Int((now() - START_TIME) * 1E6)
+        collectedData[event] = now() - START_TIME
+    }
+    
+    /** turns a number of seconds given as a Double 
+        into a number of microseconds as an Int 
+     */
+    func secDblToMicroInt(intvl: NSTimeInterval) -> Int {
+        return Int(intvl * 1E6)
     }
 
-    func now() -> NSTimeInterval {
+    func now() -> Int {
         // NSDate objects encapsulate a SINGLE point in time and are IMMUTABLE.
-        return NSDate().timeIntervalSince1970
+        return secDblToMicroInt(NSDate().timeIntervalSince1970)
     }
 }

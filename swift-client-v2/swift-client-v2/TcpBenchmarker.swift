@@ -67,7 +67,7 @@ class TcpBenchmarker: ResultMgr {
     //       that can be reused across experiments
     func uploadResults() {
         let DATASERVER_PORT = 4567 // default Sinatra port is 4567
-        print("uploading reuslts")
+        print("uploading reuslts: \(resultsAsJson())")
         let request = Alamofire.request(.POST,
             "http://localhost:\(DATASERVER_PORT)/data",
             parameters: ["\(syncCount!)": resultsConv()],
@@ -89,16 +89,16 @@ class TcpBenchmarker: ResultMgr {
     }
     
     private func resultsAsJson() -> JSON {
-        // there must be a better way...
-        var forAllJson = [JSON]()
+        // there must be a better way...needs combinators
+        var ugh = [JSON]()
         for resultData in results {
             var dict = [String:JSON]()
             for (k, v) in resultData {
                 dict[k.stringName] = JSON(v)
             }
-            forAllJson.append(JSON(dict))
+            ugh.append(JSON(dict))
         }
-        return JSON(forAllJson)
+        return JSON(ugh)
     }
     
     /** called by the EventedConn as part of implementing the `
@@ -109,8 +109,6 @@ class TcpBenchmarker: ResultMgr {
         print("added result \(result) to \(i)")
         done++
         if done == syncCount {
-            let json: JSON = resultsAsJson()
-            print("json: \(json)")
             uploadResults()
         }
     }

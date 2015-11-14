@@ -12,6 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
+ * DEPRECATED: use DataServer/dataserver.rb instead: it's way simpler
+ *              and the raw speed is not an issue.
+ *
  * Ethan Petuchowski 11/2/15
  *
  * This thing just excepts JSON blobs of data as UTF-8 strings,
