@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 /**
  
@@ -36,9 +37,7 @@ class TcpBenchmarker: ResultMgr {
     /** how many TCP servers to connect and download concurrently from */
     var syncCount: Int?
     
-    /** how many TCP servers we have finished collecting
-     performance data for
-     */
+    /** how many TCP servers we have finished collecting performance data for */
     var done = 0
     
     init(syncCount: Int) {
@@ -73,6 +72,19 @@ class TcpBenchmarker: ResultMgr {
         if done == syncCount {
             print("TODO: uploading results")
             // TODO: this is where I upload the results to the DataServer
+            
+            // convert the data to JSON (there must be a better way)
+            var forAllJson = [JSON]()
+            for resultData in results {
+                var dict = [String:JSON]()
+                for (k, v) in resultData {
+                    dict[k.stringName] = JSON(v)
+                }
+                forAllJson.append(JSON(dict))
+            }
+            let json: JSON = JSON(forAllJson)
+            print("json: \(json)")
+            
         }
     }
 }

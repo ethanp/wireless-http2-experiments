@@ -10,12 +10,19 @@
 
 import Foundation
 
-enum TcpLifecycleEvent {
-    case START
-    case OPEN
-    case FIRST_BYTE
-    case LAST_BYTE
-    case CLOSED
+enum TcpLifecycleEvent : String {
+    case START = "START"
+    case OPEN = "OPEN"
+    case FIRST_BYTE = "FIRST_BYTE"
+    case LAST_BYTE = "LAST_BYTE"
+    case CLOSED = "CLOSED"
+    
+    // http://stackoverflow.com/questions/24113126/how-to-get-the-name-of-enumeration-value-in-swift
+    var stringName: String {
+        get {
+            return self.rawValue
+        }
+    }
 }
 
 protocol ResultMgr {
