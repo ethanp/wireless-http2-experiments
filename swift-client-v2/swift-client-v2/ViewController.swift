@@ -51,15 +51,33 @@ class ViewController: UIViewController {
         fiveTcpBenchmarker.collectAndUploadResults()
     }
     
+    @IBOutlet weak var fireRepeatedly: UIButton!
+    @IBAction func fireRepeatedly(sender: UIButton) {
+        exploreTheSpace()
+    }
     
     // TODO: incorporate this badboy
     func exploreTheSpace() {
+        let sema = Semaphore()
+
         // I want the amount of data downloaded to grow EXPONENTIALLY
         // from 1 Byte to 250 MBytes
-        for i in 1...28 {
-            let size = 1 << i
-            currentBenchmarker = TcpBenchmarker(syncCount: 1, bytesToDwnld: size)
-            currentBenchmarker!.collectAndUploadResults()
+//        let THIRTY_TWO_BYTES = 5
+        let FOUR_MEGS = 22
+//        let TWO_FIFTY_MEGS = 28
+        Async.background {
+            for i in 1...FOUR_MEGS {
+                let size = 1 << i
+                debugPrint("running with size = \(size)")
+                // TODO we need to wait until the results are actually uploaded
+                self.currentBenchmarker = TcpBenchmarker(
+                    syncCount: 1,
+                    bytesToDwnld: size,
+                    sema: sema
+                )
+                self.currentBenchmarker!.collectAndUploadResults()
+                sema.wait()
+            }
         }
     }
     

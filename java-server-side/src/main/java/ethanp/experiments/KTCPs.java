@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -70,12 +71,19 @@ public class KTCPs {
          */
         @Override public void run() {
             try (ServerSocket serverSocket = new ServerSocket(port)) {
-                System.out.println("serving "+numBytes+" bytes at port "+port);
+                System.out.println("serving up to "+numBytes+" bytes at port "+port);
                 while (!this.isInterrupted()) {
+
+                    // generate the byte buffer before the client even connects
+                    byte[] bytes = RandomUtils.nextBytes(numBytes);
+
                     Socket clientSocket = serverSocket.accept();
                     long start = System.nanoTime();
                     try (OutputStream os = clientSocket.getOutputStream()) {
-                        os.write(RandomUtils.nextBytes(numBytes));
+                        os.write(bytes);
+                    }
+                    catch (SocketException e) {
+                        System.out.println("xmt on port "+port+" ended");
                     }
                     catch (IOException e) {
                         e.printStackTrace();

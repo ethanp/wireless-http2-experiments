@@ -45,6 +45,19 @@
                                     <action selector="time5TcpsPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Oav-R4-eCU"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JMZ-IE-wU0">
+                                <rect key="frame" x="20" y="129" width="121" height="30"/>
+                                <animations/>
+                                <state key="normal" title="1 TCP Repeatedly"/>
+                                <connections>
+                                    <action selector="fireRepeatedly:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fhe-6l-lcp"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OWX-ey-Cjr">
+                                <rect key="frame" x="20" y="167" width="123" height="30"/>
+                                <animations/>
+                                <state key="normal" title="5 TCP Repeatedly"/>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -58,6 +71,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="fireRepeatedly" destination="JMZ-IE-wU0" id="6hz-Zc-FIB"/>
                         <outlet property="fiveTcpsButton" destination="NMX-CV-bKU" id="ZML-O8-UF0"/>
                         <outlet property="simpleRequestButton" destination="2wj-mJ-Oct" id="Sup-gs-yXc"/>
                         <outlet property="timeTcpButton" destination="QLD-fS-4Fn" id="jvI-WV-QiG"/>

@@ -138,7 +138,8 @@ class EventedConn: NSObject, NSStreamDelegate {
                         if numBytesRcvd == -1 {
                             fatalError("input stream was closed prematurely (presumably by the server)")
                         }
-                        print("rcvd \(numBytesRcvd) bytes, viz: \(inbuf.prefix(numBytesRcvd))")
+//                        print("rcvd \(numBytesRcvd) bytes, viz: \(inbuf.prefix(numBytesRcvd))")
+                        print("rcvd \(numBytesRcvd) bytes")
                         bytesRcvd += numBytesRcvd
                     }
 
