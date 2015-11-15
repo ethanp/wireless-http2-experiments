@@ -57,6 +57,9 @@
                                 <rect key="frame" x="20" y="167" width="123" height="30"/>
                                 <animations/>
                                 <state key="normal" title="5 TCP Repeatedly"/>
+                                <connections>
+                                    <action selector="fiveConnRepeatedly:" destination="BYZ-38-t0r" eventType="touchUpInside" id="YSQ-7j-NrS"/>
+                                </connections>
                             </button>
                         </subviews>
                         <animations/>

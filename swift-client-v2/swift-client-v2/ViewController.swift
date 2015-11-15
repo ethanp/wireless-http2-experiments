@@ -53,11 +53,15 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var fireRepeatedly: UIButton!
     @IBAction func fireRepeatedly(sender: UIButton) {
-        exploreTheSpace()
+        exploreTheSpace(1)
+    }
+    @IBAction func fiveConnRepeatedly(sender: UIButton) {
+        exploreTheSpace(5)
     }
     
+    
     // TODO: incorporate this badboy
-    func exploreTheSpace() {
+    func exploreTheSpace(count: Int) {
         let sema = Semaphore()
 
         // I want the amount of data downloaded to grow EXPONENTIALLY
@@ -71,7 +75,7 @@ class ViewController: UIViewController {
                 debugPrint("running with size = \(size)")
                 // TODO we need to wait until the results are actually uploaded
                 self.currentBenchmarker = TcpBenchmarker(
-                    syncCount: 1,
+                    syncCount: count,
                     bytesToDwnld: size,
                     sema: sema
                 )
