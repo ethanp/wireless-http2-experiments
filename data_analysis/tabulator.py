@@ -28,22 +28,76 @@
 
 import json
 from datetime import datetime
+from collections import defaultdict
 
 decoder = json.JSONDecoder()
+timestamp_format = '%m:%d:%H:%M:%S:%f'
 
-fiveConnData = []
-oneConnData = []
+FIRST_BYTE = 'FIRST_BYTE'
+LAST_BYTE = 'LAST_BYTE'
+START_TIME = 'START_TIME'
+CLOSED = 'CLOSED'
+OPEN = 'OPEN'
+START = 'START'
 
-with open('../DataServer/data.txt') as f:
-    for l in f:
-        data = decoder.decode(l)
+TCP_EVENTS = [
+    START_TIME,
+    START,
+    OPEN,
+    FIRST_BYTE,
+    LAST_BYTE,
+    CLOSED
+]
 
-        # TODO for new data
-        # if data['exper'] != 'TCP':
-        #     continue
 
-        data_time = datetime.strptime(data['time'], '%m:%d:%H:%M:%S:%f').replace(year=2015)
-        print data_time
-        print 'bytes:', data['bytes']
-        for res in data['results']:
-            print res['FIRST_BYTE']
+def parse_timestamp(raw):
+    return datetime.strptime(raw, timestamp_format). \
+        replace(year=2015)
+
+
+def avg(a_list):
+    return float(sum(a_list)) / len(a_list)
+
+
+class TcpResults(object):
+    def __init__(self):
+        super(TcpResults, self).__init__()
+        self.data_loc = '../DataServer/data.txt'
+
+    def collect_from_log(self):
+
+        # { num_bytes : { event : [avg per run] } }
+        single_results = defaultdict(lambda: defaultdict(list))
+        fiver_results = defaultdict(lambda: defaultdict(list))
+        with open(self.data_loc) as f:
+            for l in f:
+                raw = decoder.decode(l)
+
+                # for filtering the data to only the TCP experiment
+                # if data['exper'] != 'TCP':
+                #     continue
+
+                # for filtering to a specific RUN of the experiment
+                # timestamp = parse_timestamp(raw['time'])
+
+                data = raw['data']
+                is_five = data['conns'] == 5
+                num_bytes = data['bytes']
+                if is_five:
+                    collector = defaultdict(list)
+                    for r in data['results']:
+                        for k, v in r.iteritems():
+                            collector[k].append(v)
+                    for k, v in collector.iteritems():
+                        fiver_results[num_bytes][k].append(float(sum(v)) / 5)
+
+                else:  # single conn
+                    for k, v in data['results'][0].iteritems():
+                        single_results[num_bytes][k].append(v)
+
+        print single_results
+        for i in sorted(fiver_results.items()):
+            print i[0], i[1][LAST_BYTE]
+
+if __name__ == '__main__':
+    TcpResults().collect_from_log()
