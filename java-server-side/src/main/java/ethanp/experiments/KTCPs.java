@@ -13,12 +13,8 @@ import java.util.concurrent.Executors;
 
 /**
  * Ethan Petuchowski 11/2/15
- *
- * The point of this class is to provide an interface to send a large file via "k" concurrent
- * TCP connections, for any given value of "k".
- *
- * NOTA BENE: the first time each of the constructed servers gets hit, it takes ~50x LONGER (!)
- *            to respond (pero por qué?)
+ * <p/>
+ * Setup 5 concurrent TCP servers on ports [12345, 12345+k)
  */
 public class KTCPs {
 
@@ -50,10 +46,8 @@ public class KTCPs {
     }
 
     /**
-     * start a server
-     * wait for a client to connect
-     * on connect, send data immediately
-     * time how long this takes (server side time taken)
+     * start a server wait for a client to connect on connect, send data immediately time how long
+     * this takes (server side time taken)
      */
     static class NonPersistent extends Thread {
 
@@ -66,8 +60,8 @@ public class KTCPs {
         }
 
         /**
-         * we enforce "crash failure semantics" so that there are no little
-         * errors that screw up my data without much notification to me.
+         * we enforce "crash failure semantics" so that there are no little errors that screw up my
+         * data without much notification to me.
          */
         @Override public void run() {
             try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -105,11 +99,13 @@ public class KTCPs {
         final int FOUR_MEGS = 1 << 22;
         KTCPs a = new KTCPsBuilder()
             .servers(5)
-            .firstPort(12345)
+            .firstPort(IpChecker.FIRST_PORT)
             .bytesPerConn(FOUR_MEGS)
             .build();
 
+        IpChecker.testExternallyAvbl();
 //        Thread.sleep(30000);
 //        a.cancel();
     }
+
 }
