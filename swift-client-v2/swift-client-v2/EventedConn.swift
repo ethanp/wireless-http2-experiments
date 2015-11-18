@@ -156,7 +156,7 @@ class EventedConn: NSObject, NSStreamDelegate {
                         resultMgr!.addResult(collectedData, forIndex: j())
                     }
                 } else {
-                    print("ignoring data, j = \(j())")
+                    print("j=\(j()) ignoring bc \(bytesRcvd) ≥ \(bytesToDwnld!)")
                 }
 
             default:

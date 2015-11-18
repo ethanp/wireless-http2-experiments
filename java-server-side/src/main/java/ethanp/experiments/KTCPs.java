@@ -109,7 +109,7 @@ public class KTCPs {
             .bytesPerConn(FOUR_MEGS)
             .build();
 
-        Thread.sleep(30000);
-        a.cancel();
+//        Thread.sleep(30000);
+//        a.cancel();
     }
 }

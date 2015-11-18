@@ -85,7 +85,9 @@ class TcpBenchmarker: ResultMgr {
         let request = Alamofire.request(.POST,
             "http://localhost:\(DATASERVER_PORT)/data",
             parameters: [
-                "\(syncCount!)": resultsConv(),
+                "conns": syncCount!,
+                "exper": "TCP",
+                "results": resultsConv(),
                 "bytes": bytesToDwnld!
             ],
             encoding: .JSON

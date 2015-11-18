@@ -21,46 +21,42 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-    
+
     // MARK: UI Elements
     @IBOutlet weak var simpleRequestButton: UIButton!
     @IBOutlet weak var timeTcpButton: UIButton!
     @IBOutlet weak var fiveTcpsButton: UIButton!
-    
+    @IBOutlet weak var fireRepeatedly: UIButton!
+
     // MARK: Attributes
     lazy var dateFormatter: NSDateFormatter = {
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "HH:mm:ss:SSS"
         return dateFormatter
     }()
-    
-    let singleTcpBenchmarker = TcpBenchmarker(syncCount: 1, bytesToDwnld: 6)
-    let fiveTcpBenchmarker = TcpBenchmarker(syncCount: 5, bytesToDwnld: 6)
-    
+
+    var singleTcpBenchmarker: TcpBenchmarker?
+    var fiveTcpBenchmarker: TcpBenchmarker?
+
     // MARK: Button Responses
     @IBAction func simpleRequestPressed(sender: UIButton) {
         sampleGET()
     }
-    
+
     /** this just does ONE tcp connection */
     @IBAction func timeTcpPressed(sender: UIButton) {
-        singleTcpBenchmarker.collectAndUploadResults()
+        singleTcpBenchmarker = TcpBenchmarker(syncCount: 1, bytesToDwnld: 6)
+        singleTcpBenchmarker!.collectAndUploadResults()
     }
-    
+
     @IBAction func time5TcpsPressed(sender: UIButton) {
-        fiveTcpBenchmarker.collectAndUploadResults()
+        fiveTcpBenchmarker = TcpBenchmarker(syncCount: 5, bytesToDwnld: 6)
+        fiveTcpBenchmarker!.collectAndUploadResults()
     }
-    
-    @IBOutlet weak var fireRepeatedly: UIButton!
-    @IBAction func fireRepeatedly(sender: UIButton) {
-        exploreTheSpace(1)
-    }
-    @IBAction func fiveConnRepeatedly(sender: UIButton) {
-        exploreTheSpace(5)
-    }
-    
-    
-    // TODO: incorporate this badboy
+
+    @IBAction func fireRepeatedly(sender: UIButton)     { exploreTheSpace(1) }
+    @IBAction func fiveConnRepeatedly(sender: UIButton) { exploreTheSpace(5) }
+
     func exploreTheSpace(count: Int) {
         let sema = Semaphore()
 
@@ -69,14 +65,15 @@ class ViewController: UIViewController {
 //        let THIRTY_TWO_BYTES = 5
         let FOUR_MEGS = 22
 //        let TWO_FIFTY_MEGS = 28
-        Async.background {
+        Async.userInitiated {
             for i in 1...FOUR_MEGS {
-                let size = 1 << i
-                debugPrint("running with size = \(size)")
+                let size = (1 << i)
+                let per = max(size / count, 1)
+                debugPrint("downloading \(size) total bytes over \(count) conns")
                 // TODO we need to wait until the results are actually uploaded
                 self.currentBenchmarker = TcpBenchmarker(
                     syncCount: count,
-                    bytesToDwnld: size,
+                    bytesToDwnld: per,
                     sema: sema
                 )
                 self.currentBenchmarker!.collectAndUploadResults()
@@ -84,9 +81,9 @@ class ViewController: UIViewController {
             }
         }
     }
-    
+
     var currentBenchmarker: TcpBenchmarker?
-    
+
     // MARK: Example Implementations
     func sampleGET() {
         Alamofire.request(.GET, "http://httpbin.org/get", parameters: ["foo": "bar"])
@@ -95,13 +92,13 @@ class ViewController: UIViewController {
                 print(res.response) // URL response
                 print(res.data)     // server data
                 print(res.result)   // result of response serialization
-                
+
                 if let json = res.result.value {
                     print("JSON: \(json)")
                 }
         }
     }
-    
+
     func jsonDictExample() -> [String:AnyObject] {
         let d2 = ["asdf": 1234, "bsdf": 2345]
         let d1 = ["title": "TCP Vary", "start": dateString(), "cons": d2]
@@ -110,9 +107,9 @@ class ViewController: UIViewController {
 
     // TODO
     func instrumentedGET(url: String, port: Int) {
-        
+
     }
-    
+
     // TODO as it is this thing takes a dict and converts it to json under the
     // hood there may be something else I need to do if I want to pass a JSON
     // obj directly to this method
@@ -123,9 +120,9 @@ class ViewController: UIViewController {
         //                "baz": "qux"
         //            ]
         //        ]
-        
+
         print("uploading")
-        
+
         Alamofire.request(
             .POST,
             "http://localhost:4567/data",
@@ -138,7 +135,7 @@ class ViewController: UIViewController {
         // HTTP body: {"foo": [1, 2, 3], "bar": {"baz": "qux"}}
     }
 
-    
+
     // MARK: Utilities
     func dateString() -> String {
         return self.dateFormatter.stringFromDate(NSDate())
