@@ -9,6 +9,7 @@
 import Foundation
 import SwiftyJSON
 import Alamofire
+import ReachabilitySwift
 
 /**
  
@@ -47,7 +48,7 @@ class TcpBenchmarker: ResultMgr {
     
     init(syncCount: Int, bytesToDwnld: Int, sema: Semaphore? = nil) {
         self.syncCount = syncCount
-        self.bytesToDwnld = bytesToDwnld
+        self.bytesToDwnld = bytesToDwnld // TOTAL bytes over ALL conns
         
         if let s = sema {
             self.sema = s
@@ -72,8 +73,28 @@ class TcpBenchmarker: ResultMgr {
             self.conns[i].recordDataFor(
                 "localhost",
                 onPort:BASE_PORT+i,
-                bytesToDwnld: bytesToDwnld!
+                bytesToDwnld: max(bytesToDwnld! / syncCount!, 1)
             )
+        }
+    }
+    
+    func getOnWifi() -> Bool {
+        let reachability : Reachability
+        do {
+            reachability = try Reachability.reachabilityForInternetConnection()
+        }
+        catch {
+            print("Unable to create Reachability")
+            fatalError()
+        }
+        
+        if reachability.isReachableViaWiFi() {
+            print("Reachable via WiFi")
+            return true
+        }
+        else {
+            print("Reachable via Cellular")
+            return false
         }
     }
     
@@ -82,13 +103,16 @@ class TcpBenchmarker: ResultMgr {
     func uploadResults() {
         let DATASERVER_PORT = 4567 // default Sinatra port is 4567
         print("uploading results: \(resultsAsJson())")
+        
+        
         let request = Alamofire.request(.POST,
             "http://localhost:\(DATASERVER_PORT)/data",
             parameters: [
-                "conns": syncCount!,
-                "exper": "TCP",
+                "conns":   syncCount!,
+                "exper":   "TCP",
                 "results": resultsConv(),
-                "bytes": bytesToDwnld!
+                "onWifi":  getOnWifi(),
+                "bytes":   bytesToDwnld!
             ],
             encoding: .JSON
         )

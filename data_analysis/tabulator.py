@@ -4,10 +4,13 @@
 # Crunches stats over the TCP connection data
 #
 # This is what each line of raw data looks like (pretty-fied)
+#   NOTE: time values are and intervals are in MICROSECONDS (secondsE-6)
+#
 # {
 #     "time":"11:16:11:39:45:966",
-#     "exper": "TCP",
 #     "data": {
+#         "exper": "TCP",
+#         "onWifi": true,
 #         "bytes":838860,
 #         "results": [
 #             {
@@ -67,8 +70,14 @@ class TcpResults(object):
     def collect_from_log(self):
 
         # { num_bytes : { event : [avg per run] } }
-        single_results = defaultdict(lambda: defaultdict(list))
-        fiver_results = defaultdict(lambda: defaultdict(list))
+        single_results = {
+            'wifi': defaultdict(lambda: defaultdict(list)),
+            'lte': defaultdict(lambda: defaultdict(list))
+        }
+        fiver_results = {
+            'wifi': defaultdict(lambda: defaultdict(list)),
+            'lte': defaultdict(lambda: defaultdict(list))
+        }
         with open(self.data_loc) as f:
             for l in f:
                 raw = decoder.decode(l)
@@ -82,6 +91,7 @@ class TcpResults(object):
 
                 data = raw['data']
                 is_five = data['conns'] == 5
+                is_wifi = 'wifi' if data['onWifi'] else 'lte'
                 num_bytes = data['bytes']
                 if is_five:
                     collector = defaultdict(list)
@@ -89,15 +99,29 @@ class TcpResults(object):
                         for k, v in r.iteritems():
                             collector[k].append(v)
                     for k, v in collector.iteritems():
-                        fiver_results[num_bytes][k].append(float(sum(v)) / 5)
+                        fiver_results[is_wifi][num_bytes][k].append(float(sum(v)) / 5)
 
                 else:  # single conn
                     for k, v in data['results'][0].iteritems():
-                        single_results[num_bytes][k].append(v)
+                        single_results[is_wifi][num_bytes][k].append(v)
 
-        print single_results
-        for i in sorted(fiver_results.items()):
-            print i[0], i[1][LAST_BYTE]
+        # for i in sorted(single_results.items()):
+        #     print i[0], avg(i[1][LAST_BYTE])
+        #
+        # for i in sorted(fiver_results.items()):
+        #     print i[0], avg(i[1][LAST_BYTE])
+
+        for i in zip(
+                sorted(single_results['wifi'].items()),
+                sorted(fiver_results['wifi'].items())
+        ):
+            print i[0][0], avg(i[0][1][LAST_BYTE]) - avg(i[1][1][LAST_BYTE])
+
+        for i in zip(
+            sorted(single_results['lte'].items()),
+            sorted(fiver_results['lte'].items())
+        ):
+            print i[0][0], avg(i[0][1][LAST_BYTE]) - avg(i[1][1][LAST_BYTE])
 
 if __name__ == '__main__':
     TcpResults().collect_from_log()

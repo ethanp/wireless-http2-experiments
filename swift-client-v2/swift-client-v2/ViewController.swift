@@ -68,12 +68,11 @@ class ViewController: UIViewController {
         Async.userInitiated {
             for i in 1...FOUR_MEGS {
                 let size = (1 << i)
-                let per = max(size / count, 1)
                 debugPrint("downloading \(size) total bytes over \(count) conns")
                 // TODO we need to wait until the results are actually uploaded
                 self.currentBenchmarker = TcpBenchmarker(
                     syncCount: count,
-                    bytesToDwnld: per,
+                    bytesToDwnld: size,
                     sema: sema
                 )
                 self.currentBenchmarker!.collectAndUploadResults()

@@ -193,7 +193,7 @@ class EventedConn: NSObject, NSStreamDelegate {
             START_TIME = now()
             collectedData[.START_TIME] = START_TIME
         }
-        collectedData[event] = now() - START_TIME
+        collectedData[event] = now() - START_TIME   // # MICROSECONDS elapsed
     }
     
     /** turns a number of seconds given as a Double 
