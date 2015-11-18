@@ -71,7 +71,7 @@ class TcpBenchmarker: ResultMgr {
         print("collecting results")
         for i in 0..<syncCount! {
             self.conns[i].recordDataFor(
-                "localhost",
+                "70.114.214.99",
                 onPort:BASE_PORT+i,
                 bytesToDwnld: max(bytesToDwnld! / syncCount!, 1)
             )
@@ -106,7 +106,7 @@ class TcpBenchmarker: ResultMgr {
         
         
         let request = Alamofire.request(.POST,
-            "http://localhost:\(DATASERVER_PORT)/data",
+            "http://70.114.214.99:\(DATASERVER_PORT)/data",
             parameters: [
                 "conns":   syncCount!,
                 "exper":   "TCP",

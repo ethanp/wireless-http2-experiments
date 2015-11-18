@@ -2,6 +2,8 @@ require 'rubygems'
 require 'sinatra'
 require 'json'
 
+set :bind, '192.168.0.17'
+
 get '/' do
  "You've reached the DataServer. What may I log today?"
 end

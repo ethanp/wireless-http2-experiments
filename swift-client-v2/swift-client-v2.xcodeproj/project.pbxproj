@@ -129,6 +129,7 @@
 				TargetAttributes = {
 					AA81A9DC1BE90F8600688763 = {
 						CreatedOnToolsVersion = 7.1;
+						DevelopmentTeam = UTP97GMXT8;
 					};
 				};
 			};
@@ -331,10 +332,13 @@
 			baseConfigurationReference = CB7923AFA10F5B52C39A8FAC /* Pods-swift-client-v2.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "swift-client-v2/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "na.ethanp.swift-client-v2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -343,10 +347,13 @@
 			baseConfigurationReference = 0FAC72C0A0A4564BBB0291EE /* Pods-swift-client-v2.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "swift-client-v2/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "na.ethanp.swift-client-v2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};
