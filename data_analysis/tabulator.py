@@ -32,6 +32,8 @@
 import json
 from collections import defaultdict
 from datetime import datetime
+import numpy as np
+import matplotlib.pyplot as plt
 
 decoder = json.JSONDecoder()
 timestamp_format = '%m:%d:%H:%M:%S:%f'
@@ -61,50 +63,57 @@ def avg(a_list):
     return float(sum(a_list)) / len(a_list)
 
 
-def result_type():
-    """
-    :return: {
-        is_wifi {
-            num_conns : {
-                conn_event :  {
-                    num_bytes : [ timestamps from different trials ]
-                }
+"""
+{
+    is_wifi {
+        num_conns : {
+            conn_event :  {
+                num_bytes : [ timestamps from different trials ]
             }
         }
     }
-    """
-    return defaultdict(lambda:
-                       defaultdict(lambda:
-                                   defaultdict(lambda:
-                                               defaultdict(list))))
+}
+"""
+results = defaultdict(lambda:
+                      defaultdict(lambda:
+                                  defaultdict(lambda:
+                                              defaultdict(list))))
 
 
-def print_results(results):
-    for wifi, aa in results.items():
-        for conns, bb in aa.items():
+def print_results():
+    for conn_type, aa in results.items():
+        for num_conns, bb in aa.items():
             for event, cc in bb.items():
-                print wifi, conns, event
+                print conn_type, num_conns, event
                 for bytes_dl, result_list in sorted(cc.items()):
                     print bytes_dl, sorted(result_list)
 
 
-def collect_from_log(data_loc):
-    results = result_type()
+def add_result(conn_type, num_conns, tcp_event, num_bytes, timestamp):
+    results[conn_type][num_conns][tcp_event][num_bytes].append(timestamp)
+
+
+def collect(data_loc):
+    """
+    :type data_loc: str
+    """
     with open(data_loc) as f:
         for l in f:
             raw = decoder.decode(l)
             # timestamp = parse_timestamp(raw['time'])
             data = raw['data']
-            if data['exper'] != 'TCP':
-                continue
-            is_wifi = 'wifi' if data['onWifi'] else 'lte'
-            num_conns = data['conns']
-            num_bytes = data['bytes']
-            for r in data['results']:
-                for k, v in r.iteritems():
-                    results[is_wifi][num_conns][k][num_bytes].append(v)
-            print_results(results)
+            if data['exper'] != 'TCP': continue
+            conn_type = 'wifi' if data['onWifi'] else 'lte'
+            for result in data['results']:
+                for tcp_event, timestamp in result.iteritems():
+                    add_result(
+                        conn_type=conn_type,
+                        num_conns=data['conns'],
+                        tcp_event=tcp_event,
+                        num_bytes=data['bytes'],
+                        timestamp=timestamp
+                    )
 
+            print_results()
 
-if __name__ == '__main__':
-    collect_from_log('../DataServer/data.txt')
+collect('../DataServer/data.txt')
