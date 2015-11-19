@@ -4,7 +4,7 @@
 # Crunches stats over the TCP connection data
 #
 # This is what each line of raw data looks like (pretty-fied)
-#   NOTE: time values are and intervals are in MICROSECONDS (secondsE-6)
+#   NOTE: time values and intervals are in MICROSECONDS (secondsE-6)
 #
 # {
 #     "time":"11:16:11:39:45:966",
@@ -32,8 +32,6 @@
 import json
 from collections import defaultdict
 from datetime import datetime
-import numpy as np
-import matplotlib.pyplot as plt
 
 decoder = json.JSONDecoder()
 timestamp_format = '%m:%d:%H:%M:%S:%f'
@@ -44,6 +42,8 @@ START_TIME = 'START_TIME'
 CLOSED = 'CLOSED'
 OPEN = 'OPEN'
 START = 'START'
+WIFI = 'wifi'
+LTE = 'lte'
 
 TCP_EVENTS = [
     START_TIME,
@@ -64,15 +64,11 @@ def avg(a_list):
 
 
 """
-{
-    is_wifi {
-        num_conns : {
-            conn_event :  {
-                num_bytes : [ timestamps from different trials ]
-            }
-        }
-    }
-}
+is_wifi :
+    num_conns :
+        conn_event :
+            num_bytes :
+                [ timestamps from different trials ]
 """
 results = defaultdict(lambda:
                       defaultdict(lambda:
@@ -103,7 +99,7 @@ def collect(data_loc):
             # timestamp = parse_timestamp(raw['time'])
             data = raw['data']
             if data['exper'] != 'TCP': continue
-            conn_type = 'wifi' if data['onWifi'] else 'lte'
+            conn_type = WIFI if data['onWifi'] else LTE
             for result in data['results']:
                 for tcp_event, timestamp in result.iteritems():
                     add_result(
@@ -111,9 +107,8 @@ def collect(data_loc):
                         num_conns=data['conns'],
                         tcp_event=tcp_event,
                         num_bytes=data['bytes'],
-                        timestamp=timestamp
-                    )
+                        timestamp=timestamp)
+    return results
 
-            print_results()
-
-collect('../DataServer/data.txt')
+if __name__ == '__main__':
+    collect('../DataServer/data.txt')
