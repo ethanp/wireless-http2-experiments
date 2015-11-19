@@ -26,17 +26,6 @@
                                     <action selector="simpleRequestPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gDB-Uy-DlF"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QLD-fS-4Fn">
-                                <rect key="frame" x="20" y="58" width="135" height="30"/>
-                                <animations/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="135" id="v8y-Zg-ePU"/>
-                                </constraints>
-                                <state key="normal" title="Single TCP Request"/>
-                                <connections>
-                                    <action selector="timeTcpPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="x47-5g-4h0"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NMX-CV-bKU">
                                 <rect key="frame" x="20" y="96" width="110" height="30"/>
                                 <animations/>
@@ -61,6 +50,28 @@
                                     <action selector="fiveConnRepeatedly:" destination="BYZ-38-t0r" eventType="touchUpInside" id="YSQ-7j-NrS"/>
                                 </connections>
                             </button>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" text="Not uploading" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="aYQ-B5-37J">
+                                <rect key="frame" x="30" y="259" width="335" height="46"/>
+                                <animations/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="ZgM-VO-ovy">
+                                <rect key="frame" x="78" y="402" width="150" height="2"/>
+                                <animations/>
+                            </progressView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QLD-fS-4Fn">
+                                <rect key="frame" x="20" y="58" width="135" height="30"/>
+                                <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="135" id="v8y-Zg-ePU"/>
+                                </constraints>
+                                <state key="normal" title="Single TCP Request"/>
+                                <connections>
+                                    <action selector="timeTcpPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="x47-5g-4h0"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -74,8 +85,11 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="debugTextArea" destination="aYQ-B5-37J" id="6vO-UH-Hdt"/>
                         <outlet property="fireRepeatedly" destination="JMZ-IE-wU0" id="6hz-Zc-FIB"/>
+                        <outlet property="fiveRepeatedly" destination="OWX-ey-Cjr" id="LXj-T3-Ink"/>
                         <outlet property="fiveTcpsButton" destination="NMX-CV-bKU" id="ZML-O8-UF0"/>
+                        <outlet property="progressBar" destination="ZgM-VO-ovy" id="xOz-lf-9yg"/>
                         <outlet property="simpleRequestButton" destination="2wj-mJ-Oct" id="Sup-gs-yXc"/>
                         <outlet property="timeTcpButton" destination="QLD-fS-4Fn" id="jvI-WV-QiG"/>
                     </connections>

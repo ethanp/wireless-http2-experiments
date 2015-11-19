@@ -27,13 +27,29 @@ class ViewController: UIViewController {
     @IBOutlet weak var timeTcpButton: UIButton!
     @IBOutlet weak var fiveTcpsButton: UIButton!
     @IBOutlet weak var fireRepeatedly: UIButton!
-
+    @IBOutlet weak var fiveRepeatedly: UIButton!
+    
+    @IBOutlet weak var debugTextArea: UITextView!
+    @IBOutlet weak var progressBar: UIProgressView!
+    
     // MARK: Attributes
     lazy var dateFormatter: NSDateFormatter = {
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "HH:mm:ss:SSS"
         return dateFormatter
     }()
+    
+    var buttons : [UIButton?] {
+        get {
+            return [
+                simpleRequestButton,
+                timeTcpButton,
+                fiveTcpsButton,
+                fireRepeatedly,
+                fiveRepeatedly
+            ]
+        }
+    }
 
     var singleTcpBenchmarker: TcpBenchmarker?
     var fiveTcpBenchmarker: TcpBenchmarker?
@@ -57,18 +73,34 @@ class ViewController: UIViewController {
     @IBAction func fireRepeatedly(sender: UIButton)     { exploreTheSpace(1) }
     @IBAction func fiveConnRepeatedly(sender: UIButton) { exploreTheSpace(5) }
 
+    func setButtonsEnabled(bool: Bool) {
+        for b in buttons {
+            b?.enabled = bool
+        }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        self.progressBar.setProgress(0.0, animated: false)
+    }
+    
     func exploreTheSpace(count: Int) {
         let sema = Semaphore()
-
+        
         // I want the amount of data downloaded to grow EXPONENTIALLY
         // from 1 Byte to 250 MBytes
 //        let THIRTY_TWO_BYTES = 5
         let FOUR_MEGS = 22
 //        let TWO_FIFTY_MEGS = 28
+        let IN_USE = FOUR_MEGS
         Async.userInitiated {
-            for i in 1...FOUR_MEGS {
+            for i in 1...IN_USE {
                 let size = (1 << i)
-                debugPrint("downloading \(size) total bytes over \(count) conns")
+                let debugText = "downloading \(size) total bytes over \(count) conns"
+                debugPrint(debugText)
+                Async.main {
+                    self.debugTextArea.text = debugText
+                    self.progressBar.setProgress((Float(i-1))/Float(IN_USE), animated: true)
+                }
                 // TODO we need to wait until the results are actually uploaded
                 self.currentBenchmarker = TcpBenchmarker(
                     syncCount: count,
@@ -77,6 +109,13 @@ class ViewController: UIViewController {
                 )
                 self.currentBenchmarker!.collectAndUploadResults()
                 sema.wait()
+            }
+            Async.main {
+                self.debugTextArea.text = "done uploading data"
+                self.progressBar.setProgress(1.0, animated: true)
+            }
+            Async.main(after: 1) {
+                self.progressBar.setProgress(0.0, animated: false)
             }
         }
     }
@@ -109,9 +148,6 @@ class ViewController: UIViewController {
 
     }
 
-    // TODO as it is this thing takes a dict and converts it to json under the
-    // hood there may be something else I need to do if I want to pass a JSON
-    // obj directly to this method
     func uploadData(data: [String:AnyObject]) {
         //        let parameters = [
         //            "foo": [1,2,3],

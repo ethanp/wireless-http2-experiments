@@ -14,6 +14,7 @@ post '/data' do
   # data_dict = JSON.parse data
   time = Time.now.strftime "%m:%d:%T:%3N"
   logline = "{\"time\":\"#{time}\",\"data\":#{data}}"
-  open('data.txt', 'a') { |f| f.puts logline }
+  prefix = Time.now.strftime "%m-%d-%H"
+  open("#{prefix}_data.txt", 'a') { |f| f.puts logline }
   logline
 end
