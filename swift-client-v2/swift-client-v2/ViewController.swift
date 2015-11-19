@@ -101,7 +101,6 @@ class ViewController: UIViewController {
                     self.debugTextArea.text = debugText
                     self.progressBar.setProgress((Float(i-1))/Float(IN_USE), animated: true)
                 }
-                // TODO we need to wait until the results are actually uploaded
                 self.currentBenchmarker = TcpBenchmarker(
                     syncCount: count,
                     bytesToDwnld: size,

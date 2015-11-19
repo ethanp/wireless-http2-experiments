@@ -30,8 +30,8 @@
 #
 
 import json
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
 
 decoder = json.JSONDecoder()
 timestamp_format = '%m:%d:%H:%M:%S:%f'
@@ -54,12 +54,13 @@ TCP_EVENTS = [
 
 
 def parse_timestamp(raw):
-    return datetime.strptime(raw, timestamp_format). \
-        replace(year=2015)
+    return datetime.strptime(raw, timestamp_format).replace(year=2015)
 
 
 def avg(a_list):
     return float(sum(a_list)) / len(a_list)
+
+
 
 
 class TcpResults(object):
@@ -67,61 +68,59 @@ class TcpResults(object):
         super(TcpResults, self).__init__()
         self.data_loc = '../DataServer/data.txt'
 
+    @staticmethod
+    def result_type():
+        """
+        :return: {
+            is_wifi {
+                num_conns : {
+                    conn_event :  {
+                        num_bytes : [ timestamps from different trials ]
+                    }
+                }
+            }
+        }
+        """
+        return defaultdict(lambda:
+                           defaultdict(lambda:
+                                       defaultdict(lambda:
+                                                   defaultdict(list))))
+
+    @staticmethod
+    def print_results(results):
+        for wifi, aa in results.items():
+            for conns, bb in aa.items():
+                for event, cc in bb.items():
+                    print wifi, conns, event
+                    for bytes_dl, result_list in sorted(cc.items()):
+                        print bytes_dl, sorted(result_list)
+
     def collect_from_log(self):
 
-        # { num_bytes : { event : [avg per run] } }
-        single_results = {
-            'wifi': defaultdict(lambda: defaultdict(list)),
-            'lte': defaultdict(lambda: defaultdict(list))
-        }
-        fiver_results = {
-            'wifi': defaultdict(lambda: defaultdict(list)),
-            'lte': defaultdict(lambda: defaultdict(list))
-        }
+        results = self.result_type()
+
         with open(self.data_loc) as f:
             for l in f:
                 raw = decoder.decode(l)
 
-                # for filtering the data to only the TCP experiment
-                # if data['exper'] != 'TCP':
-                #     continue
-
-                # for filtering to a specific RUN of the experiment
+                # for filtering
                 # timestamp = parse_timestamp(raw['time'])
 
                 data = raw['data']
-                is_five = data['conns'] == 5
+
+                if data['exper'] != 'TCP':
+                    continue
+
                 is_wifi = 'wifi' if data['onWifi'] else 'lte'
+                num_conns = data['conns']
                 num_bytes = data['bytes']
-                if is_five:
-                    collector = defaultdict(list)
-                    for r in data['results']:
-                        for k, v in r.iteritems():
-                            collector[k].append(v)
-                    for k, v in collector.iteritems():
-                        fiver_results[is_wifi][num_bytes][k].append(float(sum(v)) / 5)
 
-                else:  # single conn
-                    for k, v in data['results'][0].iteritems():
-                        single_results[is_wifi][num_bytes][k].append(v)
+                for r in data['results']:
+                    for k, v in r.iteritems():
+                        results[is_wifi][num_conns][k][num_bytes].append(v)
 
-        # for i in sorted(single_results.items()):
-        #     print i[0], avg(i[1][LAST_BYTE])
-        #
-        # for i in sorted(fiver_results.items()):
-        #     print i[0], avg(i[1][LAST_BYTE])
+                self.print_results(results)
 
-        for i in zip(
-                sorted(single_results['wifi'].items()),
-                sorted(fiver_results['wifi'].items())
-        ):
-            print i[0][0], avg(i[0][1][LAST_BYTE]) - avg(i[1][1][LAST_BYTE])
-
-        for i in zip(
-            sorted(single_results['lte'].items()),
-            sorted(fiver_results['lte'].items())
-        ):
-            print i[0][0], avg(i[0][1][LAST_BYTE]) - avg(i[1][1][LAST_BYTE])
 
 if __name__ == '__main__':
     TcpResults().collect_from_log()
