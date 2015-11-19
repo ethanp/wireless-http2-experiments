@@ -61,66 +61,50 @@ def avg(a_list):
     return float(sum(a_list)) / len(a_list)
 
 
-
-
-class TcpResults(object):
-    def __init__(self):
-        super(TcpResults, self).__init__()
-        self.data_loc = '../DataServer/data.txt'
-
-    @staticmethod
-    def result_type():
-        """
-        :return: {
-            is_wifi {
-                num_conns : {
-                    conn_event :  {
-                        num_bytes : [ timestamps from different trials ]
-                    }
+def result_type():
+    """
+    :return: {
+        is_wifi {
+            num_conns : {
+                conn_event :  {
+                    num_bytes : [ timestamps from different trials ]
                 }
             }
         }
-        """
-        return defaultdict(lambda:
-                           defaultdict(lambda:
-                                       defaultdict(lambda:
-                                                   defaultdict(list))))
+    }
+    """
+    return defaultdict(lambda:
+                       defaultdict(lambda:
+                                   defaultdict(lambda:
+                                               defaultdict(list))))
 
-    @staticmethod
-    def print_results(results):
-        for wifi, aa in results.items():
-            for conns, bb in aa.items():
-                for event, cc in bb.items():
-                    print wifi, conns, event
-                    for bytes_dl, result_list in sorted(cc.items()):
-                        print bytes_dl, sorted(result_list)
 
-    def collect_from_log(self):
+def print_results(results):
+    for wifi, aa in results.items():
+        for conns, bb in aa.items():
+            for event, cc in bb.items():
+                print wifi, conns, event
+                for bytes_dl, result_list in sorted(cc.items()):
+                    print bytes_dl, sorted(result_list)
 
-        results = self.result_type()
 
-        with open(self.data_loc) as f:
-            for l in f:
-                raw = decoder.decode(l)
-
-                # for filtering
-                # timestamp = parse_timestamp(raw['time'])
-
-                data = raw['data']
-
-                if data['exper'] != 'TCP':
-                    continue
-
-                is_wifi = 'wifi' if data['onWifi'] else 'lte'
-                num_conns = data['conns']
-                num_bytes = data['bytes']
-
-                for r in data['results']:
-                    for k, v in r.iteritems():
-                        results[is_wifi][num_conns][k][num_bytes].append(v)
-
-                self.print_results(results)
+def collect_from_log(data_loc):
+    results = result_type()
+    with open(data_loc) as f:
+        for l in f:
+            raw = decoder.decode(l)
+            # timestamp = parse_timestamp(raw['time'])
+            data = raw['data']
+            if data['exper'] != 'TCP':
+                continue
+            is_wifi = 'wifi' if data['onWifi'] else 'lte'
+            num_conns = data['conns']
+            num_bytes = data['bytes']
+            for r in data['results']:
+                for k, v in r.iteritems():
+                    results[is_wifi][num_conns][k][num_bytes].append(v)
+            print_results(results)
 
 
 if __name__ == '__main__':
-    TcpResults().collect_from_log()
+    collect_from_log('../DataServer/data.txt')
