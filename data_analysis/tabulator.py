@@ -59,10 +59,6 @@ def parse_timestamp(raw):
     return datetime.strptime(raw, timestamp_format).replace(year=2015)
 
 
-def avg(a_list):
-    return float(sum(a_list)) / len(a_list)
-
-
 """
 is_wifi :
     num_conns :

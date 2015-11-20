@@ -1,66 +1,43 @@
 # 11/19/15
 # Ethan
 
-import numpy as np
 import matplotlib.pyplot as plt
 import tabulator
 import os
 
 os.chdir('/Users/Ethan/code/my-code/wireless-http2-experiments/data_analysis')
 
-results = tabulator.collect('../DataServer/data.txt')
+# Note: the 11, 19, 21 data is from a period of high contention
+# where the wifi (2.4GHz) is rated at [40, .99, 6.27]
+# It is unclear what the cause of contention is.
+# The computer on the same (5GHz) is rated at [13, 116, 22]
+month, date, hour = 11, 19, 21
 
-def old_plot_idea():
-    """ NOTE: I'm not using this one anymore """
-    plt.figure()
-    plt.xscale('log', basex=2)
-    plt.yscale('log', basey=2)
-    plt.title('TCP for WiFi for 1 conn')
-    plt.grid(True)
-
-    one_conn_res = results[tabulator.WIFI][1]
-    five_conn_res = results[tabulator.WIFI][5]
-    
-    def plot_them(dater):
-        for event, data in dater.items():
-            if event == tabulator.START_TIME: continue
-            # recall: data is instance of { num_bytes, [ timestamps ] }
-            just_what_i_needed = sorted(data.items())
-            x = [i[0] for i in just_what_i_needed]
-            y = [i[1] for i in just_what_i_needed]
-            the_mins = [min(arr) for arr in y]
-            the_maxs = [max(arr) for arr in y]
-            the_avgs = [tabulator.avg(arr) for arr in y]
-            plt.errorbar(x, the_avgs, yerr=[the_mins, the_maxs])
-
-    plot_them(one_conn_res)
-    plot_them(five_conn_res)
-
-    plt.legend(
-        [
-            # '$y = x$',
-            '$y = 2x$'
-        ],
-        loc='upper left'
-    )
+data_loc = '../DataServer/%d-%d-%d_data.txt' % (month, date, hour)
+results = tabulator.collect(data_loc=data_loc)
+byte_vals = sorted(results[tabulator.WIFI][1][tabulator.OPEN].keys())
 
 
-"""
-1. there's a one graph for each of the events OPEN, FIRST_BYTE, LAST_BYTE
-2. on each graph there's both the ONE_CONN case and the FIVE_CONN case
-3. there's one set of graphs for each of WIFI, LTE
-4. the three WIFI graphs are on the top row, and the LTEs on the bottom row [2x3] or whatever
-"""
+def avg(a_list):
+    return float(sum(a_list)) / len(a_list)
 
 
 def mins_maxs_avgs(arr):
     return (
         [min(i) for i in arr],
         [max(i) for i in arr],
-        [tabulator.avg(i) for i in arr]
+        [avg(i) for i in arr]
     )
 
-byte_vals = sorted(results[tabulator.WIFI][1][tabulator.OPEN].keys())
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+1. there's a one graph for each of the events OPEN, FIRST_BYTE, LAST_BYTE
+2. on each graph there's both the ONE_CONN case and the FIVE_CONN case
+3. there's one set of graphs for each of WIFI, LTE
+4. the three WIFI graphs are on the top row,
+    and the LTEs on the bottom row [2x3] or whatever
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 
 def plot_stuff(subplot, event, is_wifi):
     subplot.set_xscale('log', basex=2)
@@ -77,13 +54,15 @@ def plot_stuff(subplot, event, is_wifi):
     for num_conns, data in sorted(results[is_wifi].items()):
         do_id(data[event])
 
-    subplot.legend(
-        [
-            '$One\ Conn$',
-            '$Five\ Conn$'
-        ],
-        loc='lower right'
-    )
+    # TODO ?
+    # subplot.legend(
+    #     [
+    #         '$One\ Conn$',
+    #         '$Five\ Conn$'
+    #     ],
+    #     loc='lower right'
+    # )
+
 
 wifi_modes = [
     tabulator.WIFI,
@@ -95,6 +74,10 @@ events = [
     tabulator.LAST_BYTE
 ]
 
+plt.legend([
+    '$One\ Conn$',
+    '$Five\ Conn$'
+], loc='lower right')
 fig, axs = plt.subplots(nrows=len(wifi_modes), ncols=len(events))
 for row, wifi_mode in enumerate(wifi_modes):
     for col, evt in enumerate(events):
@@ -102,9 +85,5 @@ for row, wifi_mode in enumerate(wifi_modes):
             subplot=axs[row, col],
             event=evt,
             is_wifi=wifi_mode)
-
-for row in axs:
-    for sbplt in row:
-        pass
 
 plt.show()

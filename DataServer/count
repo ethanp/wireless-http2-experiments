@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# set -x # echo to console
+
+if [ "$#" -ne 3 ]; then
+    echo "usage: ./$(basename "$0") date hour num_conns"
+    exit 5
+fi
+
+grep -E "\"bytes\":4194304.*\"conns\":$3" 11-$1-$2_data.txt | wc -l

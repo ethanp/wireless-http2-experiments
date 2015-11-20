@@ -38,12 +38,6 @@ public class KTCPs {
         }
     }
 
-    // TODO this doesn't work
-    public void cancel() {
-        System.out.println("KTCPs cancelled");
-        // calls interrupt() on all the constituent threads
-        threadPool.shutdownNow();
-    }
 
     /**
      * start a server wait for a client to connect on connect, send data immediately time how long
