@@ -1,4 +1,4 @@
-package ethanp.experiments;
+package ethanp.examples;
 
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpURI;

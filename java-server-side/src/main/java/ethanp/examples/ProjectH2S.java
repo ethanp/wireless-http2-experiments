@@ -1,4 +1,4 @@
-package ethanp.experiments;
+package ethanp.examples;
 
 import ethanp.examples.ProtocolDebugServlet;
 import ethanp.examples.PushedTilesFilter;

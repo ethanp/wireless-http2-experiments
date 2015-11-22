@@ -1,29 +1,31 @@
-package ethanp.experiments;
+package ethanp.util;
+
+import ethanp.experiments.KTCPs;
 
 /**
  * Ethan Petuchowski 11/13/15
  */
-class KTCPsBuilder {
+public class KTCPsBuilder {
     int numServers;
     int firstPort;
     int bytesSentPerConn;
 
-    KTCPsBuilder servers(int n) {
+    public KTCPsBuilder servers(int n) {
         this.numServers = n;
         return this;
     }
 
-    KTCPsBuilder firstPort(int p) {
+    public KTCPsBuilder firstPort(int p) {
         this.firstPort = p;
         return this;
     }
 
-    KTCPsBuilder bytesPerConn(int b) {
+    public KTCPsBuilder bytesPerConn(int b) {
         this.bytesSentPerConn = b;
         return this;
     }
 
-    KTCPs build() {
+    public KTCPs build() {
         return new KTCPs(numServers, firstPort, bytesSentPerConn);
     }
 }
