@@ -29,6 +29,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var fireRepeatedly: UIButton!
     @IBOutlet weak var fiveRepeatedly: UIButton!
     
+    @IBOutlet weak var http1FlurryButton: UIButton!
+    @IBOutlet weak var http2FlurryButton: UIButton!
+    
     @IBOutlet weak var debugTextArea: UITextView!
     @IBOutlet weak var progressBar: UIProgressView!
     
@@ -174,5 +177,18 @@ class ViewController: UIViewController {
     func dateString() -> String {
         return self.dateFormatter.stringFromDate(NSDate())
     }
+    
+    //////////////////////////////////////////////////
+    // THIS IS WHERE THE HTTP EXPERIMENT CODE LIVES //
+    //////////////////////////////////////////////////
+    
+    @IBAction func http1FlurryPressed(sender: UIButton) {
+        let httpBenchmarker = HttpBenchmarker(version: 2, trials: 2)
+    }
+    
+    @IBAction func http2FlurryPressed(sender: UIButton) {
+        
+    }
+    
 }
 

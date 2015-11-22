@@ -93,11 +93,11 @@ public class KTCPs {
 
     public static void main(String[] args) throws InterruptedException {
         final int FOUR_MEGS = 1 << 22;
-        KTCPsBuilder builder = new KTCPsBuilder();
-        builder.servers(5);
-        builder.firstPort(IpChecker.FIRST_PORT);
-        builder.bytesPerConn(FOUR_MEGS);
-        KTCPs a = builder.build();
+        KTCPs a = new KTCPsBuilder()
+            .servers(5)
+            .firstPort(IpChecker.FIRST_PORT)
+            .bytesPerConn(FOUR_MEGS)
+            .build();
 
         IpChecker.testExternallyAvbl();
 //        Thread.sleep(30000);

@@ -34,7 +34,7 @@
                                     <action selector="time5TcpsPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Oav-R4-eCU"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JMZ-IE-wU0">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JMZ-IE-wU0">
                                 <rect key="frame" x="20" y="129" width="121" height="30"/>
                                 <animations/>
                                 <state key="normal" title="1 TCP Repeatedly"/>
@@ -42,7 +42,7 @@
                                     <action selector="fireRepeatedly:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fhe-6l-lcp"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OWX-ey-Cjr">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OWX-ey-Cjr">
                                 <rect key="frame" x="20" y="167" width="123" height="30"/>
                                 <animations/>
                                 <state key="normal" title="5 TCP Repeatedly"/>
@@ -50,16 +50,23 @@
                                     <action selector="fiveConnRepeatedly:" destination="BYZ-38-t0r" eventType="touchUpInside" id="YSQ-7j-NrS"/>
                                 </connections>
                             </button>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" text="Not uploading" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="aYQ-B5-37J">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="Not uploading" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="aYQ-B5-37J">
                                 <rect key="frame" x="30" y="259" width="335" height="46"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="46" id="2pY-S9-WaV"/>
+                                    <constraint firstAttribute="width" constant="335" id="Cex-Sh-BkV"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="ZgM-VO-ovy">
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="ZgM-VO-ovy">
                                 <rect key="frame" x="78" y="402" width="150" height="2"/>
                                 <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="150" id="yQo-A8-DFf"/>
+                                </constraints>
                             </progressView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QLD-fS-4Fn">
                                 <rect key="frame" x="20" y="58" width="135" height="30"/>
@@ -72,15 +79,43 @@
                                     <action selector="timeTcpPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="x47-5g-4h0"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NFL-Zz-51E">
+                                <rect key="frame" x="476" y="20" width="104" height="30"/>
+                                <animations/>
+                                <state key="normal" title="HTTP/1.1 Flurry"/>
+                                <connections>
+                                    <action selector="http1FlurryPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qrx-QH-NLY"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YhQ-SY-1t7">
+                                <rect key="frame" x="484" y="58" width="96" height="30"/>
+                                <animations/>
+                                <state key="normal" title="HTTP/2 Flurry"/>
+                                <connections>
+                                    <action selector="http2FlurryPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="c2A-Ba-rLc"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="JMZ-IE-wU0" firstAttribute="top" secondItem="NMX-CV-bKU" secondAttribute="bottom" constant="3" id="6IA-zM-2mc"/>
                             <constraint firstItem="NMX-CV-bKU" firstAttribute="top" secondItem="QLD-fS-4Fn" secondAttribute="bottom" constant="8" symbolic="YES" id="6ap-gK-ASo"/>
+                            <constraint firstItem="NFL-Zz-51E" firstAttribute="baseline" secondItem="2wj-mJ-Oct" secondAttribute="baseline" id="97q-a8-oJP"/>
+                            <constraint firstItem="NFL-Zz-51E" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="AgG-hF-6cG"/>
+                            <constraint firstItem="YhQ-SY-1t7" firstAttribute="trailing" secondItem="NFL-Zz-51E" secondAttribute="trailing" id="Igc-Sc-hJ1"/>
+                            <constraint firstItem="OWX-ey-Cjr" firstAttribute="leading" secondItem="JMZ-IE-wU0" secondAttribute="leading" id="K0h-bx-eBi"/>
                             <constraint firstItem="NMX-CV-bKU" firstAttribute="leading" secondItem="QLD-fS-4Fn" secondAttribute="leading" id="KQe-wl-etO"/>
+                            <constraint firstItem="aYQ-B5-37J" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="Lti-oF-UkR"/>
+                            <constraint firstItem="OWX-ey-Cjr" firstAttribute="top" secondItem="JMZ-IE-wU0" secondAttribute="bottom" constant="8" symbolic="YES" id="Zba-1W-lBi"/>
+                            <constraint firstItem="ZgM-VO-ovy" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="58" id="bK4-f5-FdW"/>
+                            <constraint firstItem="aYQ-B5-37J" firstAttribute="top" secondItem="OWX-ey-Cjr" secondAttribute="bottom" constant="62" id="cWA-pN-Mun"/>
                             <constraint firstItem="QLD-fS-4Fn" firstAttribute="leading" secondItem="2wj-mJ-Oct" secondAttribute="leading" id="gTm-Q3-hS8"/>
                             <constraint firstItem="QLD-fS-4Fn" firstAttribute="top" secondItem="2wj-mJ-Oct" secondAttribute="bottom" constant="8" symbolic="YES" id="nqH-jS-AMC"/>
+                            <constraint firstItem="ZgM-VO-ovy" firstAttribute="top" secondItem="aYQ-B5-37J" secondAttribute="bottom" constant="97" id="r8Y-XF-jMJ"/>
                             <constraint firstItem="2wj-mJ-Oct" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="t8M-Jv-xlq"/>
+                            <constraint firstItem="JMZ-IE-wU0" firstAttribute="leading" secondItem="NMX-CV-bKU" secondAttribute="leading" id="vyH-Fq-RCW"/>
+                            <constraint firstItem="YhQ-SY-1t7" firstAttribute="baseline" secondItem="QLD-fS-4Fn" secondAttribute="baseline" id="xUs-RK-gJ4"/>
                             <constraint firstItem="2wj-mJ-Oct" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="zke-fT-cAj"/>
                         </constraints>
                     </view>
@@ -89,6 +124,8 @@
                         <outlet property="fireRepeatedly" destination="JMZ-IE-wU0" id="6hz-Zc-FIB"/>
                         <outlet property="fiveRepeatedly" destination="OWX-ey-Cjr" id="LXj-T3-Ink"/>
                         <outlet property="fiveTcpsButton" destination="NMX-CV-bKU" id="ZML-O8-UF0"/>
+                        <outlet property="http1FlurryButton" destination="NFL-Zz-51E" id="irv-so-RoK"/>
+                        <outlet property="http2FlurryButton" destination="YhQ-SY-1t7" id="AtZ-Bx-Him"/>
                         <outlet property="progressBar" destination="ZgM-VO-ovy" id="xOz-lf-9yg"/>
                         <outlet property="simpleRequestButton" destination="2wj-mJ-Oct" id="Sup-gs-yXc"/>
                         <outlet property="timeTcpButton" destination="QLD-fS-4Fn" id="jvI-WV-QiG"/>
