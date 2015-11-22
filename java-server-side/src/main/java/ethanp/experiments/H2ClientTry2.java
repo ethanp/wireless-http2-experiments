@@ -16,9 +16,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Ethan Petuchowski 11/21/15
- *
- * This is modified from
- * https://github.com/oneam/test-http2-jetty/tree/master/src/main/java/test/jetty
+ * <p/>
+ * This is modified from https://github.com/oneam/test-http2-jetty/tree/master/src/main/java/test/jetty
  */
 public class H2ClientTry2 {
 
