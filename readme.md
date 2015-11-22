@@ -13,13 +13,8 @@
 ### Overview
 * H2 makes a big point to use a _single_ (_persistent_) TCP connection [WHY?].
 * This has been shown to be problematic over cellular connections [WHERE?].
-* We shall vary the number of TCP connections and 
-* If there is time, we shall also implement a _persistent_ connection over
-  which multiple requests are made, in sequence.
-
-### Methodology
-* We don't use TLS
-* We don't use HTTP
+* We shall vary the number of TCP connections
+* We don't use anything over the raw TCP sockets
 
 #### Server
 * We used raw Oracle Java SE 8 to implement a k-threaded server.
@@ -39,32 +34,13 @@
 ### The Datas
 * The client shall store the nano-time at which
     * the whole thing is initiated
-    * each TCP connection 
+    * and the number of nanoseconds between initiation and when each TCP
+      connection
         * is _established_
         * data starts being received
         * data is done being received
-        * is _closed_
-    * The whole thing terminates
-* This will be stored in the __following *json* format__
-  
-    ```json
-    {
-      "title": "TCP Vary"
-      "start": nanotime[Long],
-      "conns": {
-        port1[Int]: {
-          "before": nanotime,
-          "connEstablished": nanotime,
-          "firstByteRcvd": nanotime,
-          "dataDone": nanotime,
-          "closed": nanotime
-        },
-        port2[Int]: ...,
-        ...
-      },
-      "end": nanotime
-    }
-    ```
+* The exact format for the raw JSON data is in the `data_analysis` directory at
+  the top of one of the python files
 
 ## H1 vs H2
 ### Overview
@@ -72,6 +48,9 @@
   speculative because there were very few existing reliable implementations of
   the protocol for both server side and for client side.
 * This is starting to change, as evidenced here [link to implementations wiki].
+* However, there is still not good performance data as it relates to _mobile
+  phones_, which were indeed a major motivation for creating HTTP/2 in the
+  first place.
 
 #### Server
 * We wanted to make sure the same framework would be used for both our H1 and
@@ -80,7 +59,7 @@
 
 #### Client
 * Apple's iOS 9 contains a (private) implementation of HTTP/2 which is used
-  automatically [__by which upgrade mechanism?__] when the server says it's
+  automatically [via _ALPN_] when the server says it's
   available.
 * I found [some code](github.com/FGoessler/iOS-HTTP2-Test) that allows one to
   selectively choose which H-vrsn to use based on whether you use
@@ -88,33 +67,35 @@
 * However that code is kind of overly-complicated, and I want to use
   `Alamofire` and `SwiftyJSON` instead.
 * So I'm going to start a new project, and leave it up to the _server_ to
-  decide which protocol I should use, perhaps based on the specific URL path
-  requested.
+  decide which protocol I should use, based on the port that the request comes
+  in on.
 * So I need a wrapper method `instrumentedGET(urlAndPort)``
 
 ##### Caching
 * This is one of those things that could easily get pretty frustrating to deal
   with
-* Check out what's going they're doing in the [relevant unit tests][cachetests]
+* Check out what's going they're doing in the [relevant Alamofire unit
+  tests][cachetests]
 
 [cachetests]: https://github.com/Alamofire/Alamofire/blob/c634f6067f0b5a59992a10bbd848203aa1231ff6/Tests/CacheTests.swift
+
+### The actual experimental condition
+* We can't ask questions about server push, because according to the Tweeters,
+  it is disabled in `NSURLSession` anyways.
+    * This is a _real_ frickin bummer.
+* In any case, we should keep in mind that the HSIS people found that the case
+  in which H2 _worse than_ H1 was under conditions of __transmitting large
+  objects over a high-loss connection__.
+* So how about we have two `html` files, one has many _small_ resources, and
+  one has many _large_ resources.
+    * We expect that due to the multiplexability of H2, the small resources
+      should perform better in that scenario.
+    * As a way to try to replicate the effects seen in HSIS, we expect the
+      large resources' condition to give the edge to H1.
+
 ## Data Collection
 ### DataServer
-#### OLD!
-* There is a specific Java server that is very easy to set-up from other
-  programs.
-* It is the `DataServer`, and it sits there, expecting data to come in as a
-  UTF-8 JSON String through a server socket.
-* It just dumps that json string into a file
-
-#### Sinatra version
-* I want `DataServer` to run HTTP, and the easiest way to do that wass to have
-  a little Sinatra microservice
-
-### DataSender
-* There is a Swift class `DataSender` purpose built to send appropriately-
-  formatted JSON blobs to the aforementioned Java `DataServer`.
-* `DataSender` works as follows
-* There is a `JsonBuilder` that exposes a nice API for building the Json object
-* Then you can do `DataSender.send(JsonBuilder)` and it all gets sent to the
-  `DataServer`
+* `DataServer` is a little Sinatra HTTP (/1.1!) microservice
+* It sits there, expecting data to come in as a UTF-8 JSON String through a
+  server socket.
+* It dumps incoming json strings into a file prefixed with the date and hour.
