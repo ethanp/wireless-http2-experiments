@@ -137,9 +137,9 @@ public class Http2EchoServer {
 
         // HTTP/2 Connector (no idea if this is right)
         ServerConnector https2Connector = new ServerConnector(server,
-//            http2Factory,
-            sslFactory//,
-//            httpFactory
+            sslFactory
+            , http2Factory
+//           , httpFactory // I think this isn't here by default because http2 is there.
         );
         https2Connector.setPort(8443);
 
@@ -150,7 +150,7 @@ public class Http2EchoServer {
                 sslContextFactory,
                 HttpVersion.HTTP_1_1.asString()
             ),
-            new HttpConnectionFactory(httpsConfig)
+            httpFactory // I think this would be there by default anyway
         );
         https1Connector.setPort(8444);
         https1Connector.setIdleTimeout(500000);

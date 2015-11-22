@@ -85,25 +85,31 @@ def add_result(conn_type, num_conns, tcp_event, num_bytes, timestamp):
     results[conn_type][num_conns][tcp_event][num_bytes].append(timestamp)
 
 
-def collect(data_loc):
+def collect(data_locs):
     """
-    :type data_loc: str
+    :rtype: object
+    :param data_locs: either a list of or single data file
+    :return: the combined results therein
     """
-    with open(data_loc) as f:
-        for l in f:
-            raw = decoder.decode(l)
-            # timestamp = parse_timestamp(raw['time'])
-            data = raw['data']
-            if data['exper'] != 'TCP': continue
-            conn_type = WIFI if data['onWifi'] else LTE
-            for result in data['results']:
-                for tcp_event, timestamp in result.iteritems():
-                    add_result(
-                        conn_type=conn_type,
-                        num_conns=data['conns'],
-                        tcp_event=tcp_event,
-                        num_bytes=data['bytes'],
-                        timestamp=timestamp)
+    if isinstance(data_locs, str):
+        data_locs = [data_locs]
+    for data_loc in data_locs:
+        print data_loc
+        with open(data_loc) as f:
+            for l in f:
+                raw = decoder.decode(l)
+                # timestamp = parse_timestamp(raw['time'])
+                data = raw['data']
+                if data['exper'] != 'TCP': continue
+                conn_type = WIFI if data['onWifi'] else LTE
+                for result in data['results']:
+                    for tcp_event, timestamp in result.iteritems():
+                        add_result(
+                            conn_type=conn_type,
+                            num_conns=data['conns'],
+                            tcp_event=tcp_event,
+                            num_bytes=data['bytes'],
+                            timestamp=timestamp)
     return results
 
 if __name__ == '__main__':

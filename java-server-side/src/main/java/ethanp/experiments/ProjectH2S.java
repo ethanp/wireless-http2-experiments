@@ -1,10 +1,11 @@
-package ethanp.examples;
+package ethanp.experiments;
 
+import ethanp.examples.ProtocolDebugServlet;
+import ethanp.examples.PushedTilesFilter;
 import org.eclipse.jetty.alpn.ALPN;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.HTTP2Cipher;
-import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -28,12 +29,19 @@ import java.util.EnumSet;
  * <p>
  * I got this from https://github.com/eclipse/jetty.project/blob/bd27e7d2d480949b32ad6abfbda0c24e6042c1e3/examples/embedded/src/main/java/org/eclipse/jetty/embedded/Http2Server.java
  * <p>
- * Then I trimmed it down to do what I need.
+ * Then trimmed it down to do what I need.
  */
 public class ProjectH2S {
-    public static void main(String... args) throws Exception {
+    public static void main(String[] args) throws Exception {
         Server server = new Server();
+
+        // This handler will route most requests to resources/docroot/
+        // and install the PushSessionCacheFilter
+        //
+        // Except /test, which routes /test requests to the ProtocolDebugServlet (works)
+        //
         server.setHandler(createContextHandler(server));
+
         server.addConnector(baseHttp1Connector(server));
         server.addConnector(baseHttp2Connector(server));
         server.start();
@@ -87,8 +95,11 @@ public class ProjectH2S {
     public static ServerConnector baseHttp1Connector(Server server) {
         ServerConnector http = new ServerConnector(
             server,
-            new HttpConnectionFactory(baseHttpConfig()),
-            new HTTP2CServerConnectionFactory(baseHttpConfig())
+            new SslConnectionFactory(
+                basicSslContextFactory(),
+                HttpVersion.HTTP_1_1.asString()
+            ),
+            new HttpConnectionFactory(baseHttpConfig())
         );
         http.setPort(8080);
         return http;
@@ -103,8 +114,8 @@ public class ProjectH2S {
                 HttpVersion.HTTP_1_1.asString()
             ),
             baseAlpn(),
-            new HTTP2ServerConnectionFactory(baseHttpsConfig()),
-            new HttpConnectionFactory(baseHttpsConfig())
+            new HTTP2ServerConnectionFactory(baseHttpsConfig())
+            , new HttpConnectionFactory(baseHttpsConfig())
         );
         connector.setPort(8443);
         return connector;

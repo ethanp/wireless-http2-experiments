@@ -7,14 +7,32 @@ import os
 
 os.chdir('/Users/Ethan/code/my-code/wireless-http2-experiments/data_analysis')
 
-# Note: the 11, 19, 21 data is from a period of high contention
-# where the wifi (2.4GHz) is rated at [40, .99, 6.27]
-# It is unclear what the cause of contention is.
-# The computer on the same (5GHz) is rated at [13, 116, 22]
-month, date, hour = 11, 19, 21
+"""
+ DATA CATALOG
+ ------------
 
-data_loc = '../DataServer/%d-%d-%d_data.txt' % (month, date, hour)
-results = tabulator.collect(data_loc=data_loc)
+11, 19, 21: period of low bandwidth, evidenced by
+iPhone WiFi (2.4GHz) is rated at [40, .99!, 6.27].
+It is unclear what the cause of contention is.
+The computer on the same (5GHz) is rated at [13, 116, 22].
+One of the trials failed to complete the sweep; it hung
+    on the 2MB case and had to be cancelled (cause unknown,
+    not enough time to figure it out).
+
+11, 19, 22:
+LTE at this time is at [50, 36, 14] (this is typical).
+"""
+
+month = 11
+date_hours = {
+    19: [21, 22]
+}
+
+data_locs = []
+for date, hours in date_hours.items():
+    for hour in hours:
+        data_locs.append('../DataServer/%d-%d-%d_data.txt' % (month, date, hour))
+results = tabulator.collect(data_locs=data_locs)
 byte_vals = sorted(results[tabulator.WIFI][1][tabulator.OPEN].keys())
 
 
@@ -54,9 +72,9 @@ def plot_stuff(subplot, event, is_wifi):
     for num_conns, data in sorted(results[is_wifi].items()):
         do_id(data[event])
 
-    # TODO ?
-    # subplot.legend(
-    #     [
+    # TODO ? (typically, 1 is blue, 5 is green)
+    #subplot.legend(
+    # [
     #         '$One\ Conn$',
     #         '$Five\ Conn$'
     #     ],

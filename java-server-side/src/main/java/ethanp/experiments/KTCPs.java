@@ -1,6 +1,7 @@
 package ethanp.experiments;
 
 
+import ethanp.util.IpChecker;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.io.IOException;

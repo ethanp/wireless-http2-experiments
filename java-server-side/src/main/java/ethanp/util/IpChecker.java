@@ -1,4 +1,4 @@
-package ethanp.experiments;
+package ethanp.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,9 +10,9 @@ import java.net.URL;
 /**
  * Ethan Petuchowski 11/18/15
  */
-class IpChecker {
+public class IpChecker {
 
-    static final int FIRST_PORT = 12345;
+    public static final int FIRST_PORT = 12345;
 
     // http://stackoverflow.com/a/14541376/1959155
     public static String getIp() throws Exception {
@@ -22,7 +22,7 @@ class IpChecker {
         }
     }
 
-    static void testExternallyAvbl() {
+    public static void testExternallyAvbl() {
         String ipv6Addr = null;
         try {
             ipv6Addr = IpChecker.getIp();

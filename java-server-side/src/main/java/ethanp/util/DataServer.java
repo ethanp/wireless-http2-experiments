@@ -1,4 +1,4 @@
-package ethanp.experiments;
+package ethanp.util;
 
 import java.io.BufferedReader;
 import java.io.File;
