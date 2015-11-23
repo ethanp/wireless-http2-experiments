@@ -98,28 +98,16 @@ class TcpBenchmarker: ResultMgr {
         }
     }
     
-    // TODO: perhaps this should call a function on a DataUploader object
-    //       that can be reused across experiments
     func uploadResults() {
-        let DATASERVER_PORT = 4567 // default Sinatra port is 4567
         print("uploading results: \(resultsAsJson())")
-        
-        
-        let request = Alamofire.request(.POST,
-            "http://70.114.214.99:\(DATASERVER_PORT)/data",
-            parameters: [
-                "conns":   syncCount!,
-                "exper":   "TCP",
-                "results": resultsConv(),
-                "onWifi":  getOnWifi(),
-                "bytes":   bytesToDwnld!
-            ],
-            encoding: .JSON
-        )
-        debugPrint(request)
-        if let s = self.sema {
-            s.signal()
-        }
+        DataUploader.uploadResults([
+            "conns":   syncCount!,
+            "exper":   "TCP",
+            "results": resultsConv(),
+            "onWifi":  getOnWifi(),
+            "bytes":   bytesToDwnld!
+        ])
+        sema?.signal()
     }
     
     private func resultsConv() -> [[String : Int]] {

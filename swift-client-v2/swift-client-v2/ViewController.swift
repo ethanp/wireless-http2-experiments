@@ -86,23 +86,24 @@ class ViewController: UIViewController {
         self.progressBar.setProgress(0.0, animated: false)
     }
     
+    // just used in exploreTheSpace, maybe could be moved into that method
+    var currentBenchmarker: TcpBenchmarker?
+    
     func exploreTheSpace(count: Int) {
         let sema = Semaphore()
         
-        // I want the amount of data downloaded to grow EXPONENTIALLY
-        // from 1 Byte to 250 MBytes
-//        let THIRTY_TWO_BYTES = 5
+        // amount of data downloaded grows EXPONENTIALLY
+        // from 1 Byte to 4 MB
         let FOUR_MEGS = 22
-//        let TWO_FIFTY_MEGS = 28
-        let IN_USE = FOUR_MEGS
+        
         Async.userInitiated {
-            for i in 1...IN_USE {
+            for i in 1...FOUR_MEGS {
                 let size = (1 << i)
                 let debugText = "downloading \(size) total bytes over \(count) conns"
                 debugPrint(debugText)
                 Async.main {
                     self.debugTextArea.text = debugText
-                    self.progressBar.setProgress((Float(i-1))/Float(IN_USE), animated: true)
+                    self.progressBar.setProgress((Float(i-1))/Float(FOUR_MEGS), animated: true)
                 }
                 self.currentBenchmarker = TcpBenchmarker(
                     syncCount: count,
@@ -110,6 +111,8 @@ class ViewController: UIViewController {
                     sema: sema
                 )
                 self.currentBenchmarker!.collectAndUploadResults()
+                
+                // wait for results to be uploaded by the TcpBenchmarker
                 sema.wait()
             }
             Async.main {
@@ -122,7 +125,6 @@ class ViewController: UIViewController {
         }
     }
 
-    var currentBenchmarker: TcpBenchmarker?
 
     // MARK: Example Implementations
     func sampleGET() {
@@ -184,6 +186,7 @@ class ViewController: UIViewController {
     
     @IBAction func http1FlurryPressed(sender: UIButton) {
         let httpBenchmarker = HttpBenchmarker(version: 2, trials: 2)
+        httpBenchmarker.collectAndUploadResults()
     }
     
     @IBAction func http2FlurryPressed(sender: UIButton) {
