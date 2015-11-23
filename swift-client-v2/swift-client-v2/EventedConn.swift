@@ -10,40 +10,16 @@
 
 import Foundation
 
-enum TcpLifecycleEvent : String {
-    case START = "START"
-    case START_TIME = "START_TIME"
-    case OPEN = "OPEN"
-    case FIRST_BYTE = "FIRST_BYTE"
-    case LAST_BYTE = "LAST_BYTE"
-    case CLOSED = "CLOSED"
-    
-    // http://stackoverflow.com/questions/24113126/how-to-get-the-name-of-enumeration-value-in-swift
-    var stringName: String {
-        get {
-            return self.rawValue
-        }
-    }
-}
-
-protocol ResultMgr {
-    func addResult(result: Results, forIndex i: Int)
-}
-class EventedConn: NSObject, NSStreamDelegate {
+class EventedConn: Benchmarker, NSStreamDelegate {
 
     var host:String?
     var port:Int?
     var bytesToDwnld:Int?
     var inputStream: NSInputStream?
     var outputStream: NSOutputStream?
-    var collectedData = Results()
-    var resultMgr: ResultMgr?
     
     var bytesRcvd = 0
     
-    init(resultMgr: ResultMgr) {
-        self.resultMgr = resultMgr
-    }
 
     /** This function opens TCP streams to the given address and returns.
         Asynchronously, this object receives bytes over those streams.
@@ -61,7 +37,7 @@ class EventedConn: NSObject, NSStreamDelegate {
 
         print("connecting i = \(port)")
         // Note: typealias NSTimeInterval = Double
-        timestampEvent(TcpLifecycleEvent.START)
+        timestampEvent(.START)
         
         // TODO: I'm having trouble figuring out what EXACTLY this does
         NSStream.getStreamsToHostWithName(
@@ -105,7 +81,7 @@ class EventedConn: NSObject, NSStreamDelegate {
                 print("input j = \(j()): OpenCompleted")
 
                 // note stream is open
-                timestampEvent(TcpLifecycleEvent.OPEN)
+                timestampEvent(.OPEN)
 
             // TODO: this is buggy. 
             // If there are > 8 bytes available,
@@ -118,7 +94,7 @@ class EventedConn: NSObject, NSStreamDelegate {
 
                     // note first byte
                     if bytesRcvd == 0 {
-                        timestampEvent(TcpLifecycleEvent.FIRST_BYTE)
+                        timestampEvent(.FIRST_BYTE)
                     }
 
                     // read bytes available
@@ -145,13 +121,12 @@ class EventedConn: NSObject, NSStreamDelegate {
 
                     // note last byte
                     if bytesRcvd >= bytesToDwnld {
-                        timestampEvent(TcpLifecycleEvent.LAST_BYTE)
+                        timestampEvent(.LAST_BYTE)
 
-                        // Not sure this actually closes TCP connection (or waits!),
-                        // but it may be easy to tell based on the time difference
-                        // between LAST_BYTE and CLOSED in the data.
+                        // This doesn't seem to actually 
+                        // close the TCP connection
                         closeStreams()
-                        timestampEvent(TcpLifecycleEvent.CLOSED)
+                        timestampEvent(.CLOSED)
                         
                         resultMgr!.addResult(collectedData, forIndex: j())
                     }
@@ -163,19 +138,6 @@ class EventedConn: NSObject, NSStreamDelegate {
                 break
             }
         }
-//        else if aStream === outputStream {
-//            switch eventCode {
-//            case NSStreamEvent.ErrorOccurred:
-//                print("output: ErrorOccurred: \(aStream.streamError?.description)")
-//            case NSStreamEvent.OpenCompleted:
-//                print("output: OpenCompleted")
-//            case NSStreamEvent.HasSpaceAvailable:
-//                print("output: HasSpaceAvailable")
-//                // Here you can write() to `outputStream`
-//            default:
-//                break
-//            }
-//        }
     }
     
     func closeStreams() {
@@ -184,27 +146,5 @@ class EventedConn: NSObject, NSStreamDelegate {
         inputStream?.removeFromRunLoop(.mainRunLoop(), forMode: NSDefaultRunLoopMode)
         // https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/Streams/Articles/ReadingInputStreams.html
         outputStream?.removeFromRunLoop(.mainRunLoop(), forMode: NSDefaultRunLoopMode)
-    }
-    
-    var START_TIME: Int! // `!` means it doesn't have to be init'd in init()
-    
-    func timestampEvent(event: TcpLifecycleEvent) {
-        if event == .START {
-            START_TIME = now()
-            collectedData[.START_TIME] = START_TIME
-        }
-        collectedData[event] = now() - START_TIME   // # MICROSECONDS elapsed
-    }
-    
-    /** turns a number of seconds given as a Double 
-        into a number of microseconds as an Int 
-     */
-    func secDblToMicroInt(intvl: NSTimeInterval) -> Int {
-        return Int(intvl * 1E6)
-    }
-
-    func now() -> Int {
-        // NSDate objects encapsulate a SINGLE point in time and are IMMUTABLE.
-        return secDblToMicroInt(NSDate().timeIntervalSince1970)
     }
 }

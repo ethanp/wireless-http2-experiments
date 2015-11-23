@@ -18,12 +18,15 @@ enum HttpVersion {
 /**
 What this does is: TODO
 */
-class HttpBenchmarker {
+class HttpBenchmarker: Benchmarker {
+    
     var httpVersion: HttpVersion
     var numTrials: Int
-    let ipAddr = "localhost"
     
-    var result = ["asdf":34534]
+    let ipAddr = "localhost"
+    let page = "index.html"
+    
+    var result = [String:AnyObject]()
     
     init(version: HttpVersion, trials: Int) {
         self.httpVersion = version
@@ -39,7 +42,16 @@ class HttpBenchmarker {
     }
     
     func collectResult() {
-        
+        timestampEvent(.START)
+        Alamofire.request(.GET, "https://\(ipAddr):\(port())/\(page)")
+            .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
+                if totalBytesRead == 0 {
+                    self.timestampEvent(.FIRST_BYTE)
+                }
+            }
+            .responseData { response -> Void in
+                self.timestampEvent(.CLOSED)
+        }
     }
     
     func uploadResult() {
