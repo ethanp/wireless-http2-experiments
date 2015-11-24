@@ -43,6 +43,19 @@ class ViewController: UIViewController {
         return dateFormatter
     }()
     
+    lazy var sessionConfig: NSURLSessionConfiguration = {
+        let conf = NSURLSessionConfiguration.defaultSessionConfiguration()
+        conf.HTTPMaximumConnectionsPerHost = 5
+        conf.HTTPShouldUsePipelining = false
+        conf.URLCache = nil             // no caching is to be performed
+        conf.URLCredentialStorage = nil // no credential storage is to be used
+        conf.HTTPCookieStorage = nil    // no cookies should be handled
+        conf.allowsCellularAccess = true
+        conf.requestCachePolicy = .ReloadIgnoringLocalCacheData
+        conf.HTTPShouldSetCookies = false
+        return conf
+    }()
+    
     var buttons : [UIButton?] {
         get {
             return [
@@ -194,23 +207,24 @@ class ViewController: UIViewController {
     
     func displayURL() {
         // let myURL = NSURL(string: "https://localhost:8443/index.html")
-        let wired = NSURL(string: "http://www.wired.com")!
-        displayText("retrieving \(wired)")
+        let testURL = NSURL(string: "https://http2.akamai.com/")!
+        displayText("retrieving \(testURL)")
         
-        /* This is just a test. With sharedSession, we cannot receive
-            onData events, and we cannot manage cache
-        */
-        NSURLSession.sharedSession().dataTaskWithURL(wired) {
+        NSURLSession(
+            configuration: sessionConfig,
+            delegate: HttpBenchmarker(version: .TWO, trials: 2),
+            delegateQueue: NSOperationQueue.currentQueue()
+        ).dataTaskWithURL(testURL) {
             (data, response, error) in
             if let err = error {
                 self.displayText("today, the music died: \(err)")
                 fatalError()
             }
-            self.displayText("rendering received data for \(wired)")
+            self.displayText("rendering received data for \(testURL)")
             let htmlString = NSString(data: data!, encoding: NSUTF8StringEncoding)
             
             // this (rendering html to webView) is async (need callback or something)
-            self.webView.loadHTMLString(htmlString as! String, baseURL: nil)
+            self.webView.loadHTMLString(htmlString as! String, baseURL: testURL)
         }.resume()
     }
     

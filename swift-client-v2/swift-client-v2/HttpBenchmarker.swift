@@ -18,7 +18,7 @@ enum HttpVersion {
 /**
 What this does is: TODO
 */
-class HttpBenchmarker: Benchmarker, ResultMgr {
+class HttpBenchmarker: Benchmarker, ResultMgr, NSURLSessionDownloadDelegate {
     
     var httpVersion: HttpVersion
     var numTrials: Int
@@ -44,15 +44,7 @@ class HttpBenchmarker: Benchmarker, ResultMgr {
     
     func collectResult() {
         timestampEvent(.START)
-        Alamofire.request(.GET, "https://\(ipAddr):\(port())/\(page)")
-            .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
-                if totalBytesRead == 0 {
-                    self.timestampEvent(.FIRST_BYTE)
-                }
-            }
-            .responseData { response -> Void in
-                self.timestampEvent(.CLOSED)
-        }
+
     }
     
     func uploadResult() {
@@ -66,4 +58,44 @@ class HttpBenchmarker: Benchmarker, ResultMgr {
     func port() -> Int? {
         return httpVersion == .ONE ? 8444 : 8443
     }
+    
+    // I don't think I'll be using this
+    // I'm going to use the raw NSURLSession stuff instead
+    func alamoVersion() {
+        Alamofire.request(.GET, "https://\(ipAddr):\(port())/\(page)")
+            .progress { bytesRead, totalBytesRead, totalBytesExpectedToRead in
+                if totalBytesRead == 0 {
+                    self.timestampEvent(.FIRST_BYTE)
+                }
+            }
+            .responseData { response -> Void in
+                self.timestampEvent(.CLOSED)
+        }
+    }
+
+    /* Sent periodically to notify the delegate of download progress. */
+    func URLSession(
+        session:                    NSURLSession,
+        downloadTask:               NSURLSessionDownloadTask,
+        didWriteData bytesWritten:  Int64,
+        totalBytesWritten:          Int64,
+        totalBytesExpectedToWrite:  Int64)
+    {
+        print("didWriteData was called")
+    }
+    
+    /* Sent when a download task that has completed a download.  The delegate should
+     * copy or move the file at the given location to a new location as it will be
+     * removed when the delegate message returns. URLSession:task:didCompleteWithError:
+     * will still be called.
+     */
+    func URLSession(
+        session: NSURLSession,
+        downloadTask: NSURLSessionDownloadTask,
+        didFinishDownloadingToURL location: NSURL)
+    {
+        print("didFinishDownloading was called")
+    }
+    
+
 }
