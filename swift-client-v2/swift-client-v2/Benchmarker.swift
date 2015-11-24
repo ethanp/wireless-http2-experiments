@@ -54,6 +54,7 @@ class Benchmarker: NSObject/*<-necessary*/ {
         return Int(intvl * 1E6)
     }
     
+    /** return right now's time into a micro-second */
     func now() -> Int {
         // NSDate objects encapsulate a SINGLE point in
         // time and are IMMUTABLE.

@@ -14,7 +14,7 @@ import Async
 typealias Results = [Lifecycle: Int]
 let BASE_PORT = 12345
 
-class ViewController: UIViewController, NSURLSessionDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate {
+class ViewController: UIViewController {
 
     // MARK: Lifecycle
     // Do any additional setup after loading the view
@@ -41,19 +41,6 @@ class ViewController: UIViewController, NSURLSessionDelegate, NSURLSessionDataDe
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "HH:mm:ss:SSS"
         return dateFormatter
-    }()
-    
-    lazy var sessionConfig: NSURLSessionConfiguration = {
-        let conf = NSURLSessionConfiguration.defaultSessionConfiguration()
-        conf.HTTPMaximumConnectionsPerHost = 5
-        conf.HTTPShouldUsePipelining = false
-        conf.URLCache = nil             // no caching is to be performed
-        conf.URLCredentialStorage = nil // no credential storage is to be used
-        conf.HTTPCookieStorage = nil    // no cookies should be handled
-        conf.allowsCellularAccess = true
-        conf.requestCachePolicy = .ReloadIgnoringLocalCacheData
-        conf.HTTPShouldSetCookies = false
-        return conf
     }()
     
     var buttons : [UIButton?] {
@@ -188,10 +175,10 @@ class ViewController: UIViewController, NSURLSessionDelegate, NSURLSessionDataDe
         return self.dateFormatter.stringFromDate(NSDate())
     }
     
-    func displayText(text: String) {
+    func displayText(text: AnyObject) {
         print(text)
         Async.main {
-            self.debugTextArea.text = text
+            self.debugTextArea.text = "\(text)"
         }
     }
     
@@ -205,92 +192,17 @@ class ViewController: UIViewController, NSURLSessionDelegate, NSURLSessionDataDe
         displayURL()
     }
     
-    let theHttpB = HttpBenchmarker(version: .TWO, trials: 2)
     
     func displayURL() {
-        // let myURL = NSURL(string: "https://localhost:8443/index.html")
-        let testURL = NSURL(string: "https://http2.akamai.com/")!
-        displayText("retrieving \(testURL)")
-        
-        let ses = NSURLSession(
-            configuration: sessionConfig,
-            delegate: self,
-            delegateQueue: NSOperationQueue.mainQueue()//nil // create a bg-thread for this task
-        )
-        let urlReq = NSURLRequest(URL: testURL)
-        let dataTask = ses.downloadTaskWithRequest(urlReq)
-        dataTask.resume()
-//        ses.dataTaskWithURL(testURL) {
-//            (data, response, error) in
-//            if let err = error {
-//                self.displayText("today, the music died: \(err)")
-//                fatalError()
-//            }
-//            
-//            self.displayText("rendering received data for \(testURL)")
-//            let htmlString = NSString(data: data!, encoding: NSUTF8StringEncoding)
-//            
-//            // this (rendering html to webView) is async (need callback or something)
-//            self.webView.loadHTMLString(htmlString as! String, baseURL: testURL)
-//        }.resume()
-    }
-    
-    @IBAction func http2FlurryPressed(sender: UIButton) {
-        HttpBenchmarker(version: .TWO, trials: 2)
+        HttpBenchmarker(vc: self)
             .collectAndUploadResults()
     }
     
-    /* Sent periodically to notify the delegate of download progress. */
-    func URLSession(
-        session:                    NSURLSession,
-        downloadTask:               NSURLSessionDownloadTask,
-        didWriteData bytesWritten:  Int64,
-        totalBytesWritten:          Int64,
-        totalBytesExpectedToWrite:  Int64)
-    {
-        print("didWriteData was called")
+    @IBAction func http2FlurryPressed(sender: UIButton) {
+        HttpBenchmarker(vc: self)
+            .collectAndUploadResults()
     }
     
-    /* Sent when a download task that has completed a download.  The delegate should
-    * copy or move the file at the given location to a new location as it will be
-    * removed when the delegate message returns. URLSession:task:didCompleteWithError:
-    * will still be called.
-    */
-    func URLSession(
-        session:                            NSURLSession,
-        downloadTask:                       NSURLSessionDownloadTask,
-        didFinishDownloadingToURL location: NSURL)
-    {
-        print("didFinishDownloading was called")
-        
-        self.webView.loadData(
-            NSData(contentsOfURL: location)!,
-            MIMEType: "text/html",
-            textEncodingName: "UTF-8",
-            baseURL: location
-        )
-    }
-    
-    /* Sent when data is available for the delegate to consume.  It is
-    * assumed that the delegate will retain and not copy the data.  As
-    * the data may be discontiguous, you should use
-    * [NSData enumerateByteRangesUsingBlock:] to access it.
-    */
-    func URLSession(
-        session: NSURLSession,
-        dataTask: NSURLSessionDataTask,
-        didReceiveData data: NSData)
-    {
-        print("didReceiveData was called")
-    }
-    
-    func URLSession(
-        session: NSURLSession,
-        dataTask: NSURLSessionDataTask,
-        didReceiveResponse response: NSURLResponse,
-        completionHandler: (NSURLSessionResponseDisposition) -> Void)
-    {
-        print("didReceiveResponse was called")
-    }
+
 }
 
