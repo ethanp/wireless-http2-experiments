@@ -31,17 +31,20 @@ protocol ResultMgr {
 class Benchmarker: NSObject/*<-necessary*/ {
     var collectedData = Results()
     var resultMgr: ResultMgr?
-    init(resultMgr: ResultMgr) {
+    init(resultMgr: ResultMgr?) {
         self.resultMgr = resultMgr
     }
-    var START_TIME: Int! // `!` means it doesn't have to be init'd in init()
+    
+    // `!` means it doesn't have to be init'd in init()
+    var START_TIME: Int!
     
     func timestampEvent(event: Lifecycle) {
         if event == .START {
             START_TIME = now()
             collectedData[.START_TIME] = START_TIME
         }
-        collectedData[event] = now() - START_TIME   // # MICROSECONDS elapsed
+        // # MICROSECONDS elapsed
+        collectedData[event] = now() - START_TIME
     }
     
     /** turns a number of seconds given as a Double
@@ -52,7 +55,8 @@ class Benchmarker: NSObject/*<-necessary*/ {
     }
     
     func now() -> Int {
-        // NSDate objects encapsulate a SINGLE point in time and are IMMUTABLE.
+        // NSDate objects encapsulate a SINGLE point in
+        // time and are IMMUTABLE.
         return secDblToMicroInt(NSDate().timeIntervalSince1970)
     }
 }

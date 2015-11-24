@@ -18,7 +18,7 @@ enum HttpVersion {
 /**
 What this does is: TODO
 */
-class HttpBenchmarker: Benchmarker {
+class HttpBenchmarker: Benchmarker, ResultMgr {
     
     var httpVersion: HttpVersion
     var numTrials: Int
@@ -31,6 +31,7 @@ class HttpBenchmarker: Benchmarker {
     init(version: HttpVersion, trials: Int) {
         self.httpVersion = version
         self.numTrials = trials
+        super.init(resultMgr: nil /* TODO!!! */)
     }
     
     func collectAndUploadResults() {
@@ -59,6 +60,8 @@ class HttpBenchmarker: Benchmarker {
             "oo bee doo bee": "hey hey hey"
         ])
     }
+    
+    func addResult(result: Results, forIndex i: Int) { /* TODO */ }
     
     func port() -> Int? {
         return httpVersion == .ONE ? 8444 : 8443

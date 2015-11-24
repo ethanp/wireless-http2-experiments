@@ -11,7 +11,7 @@ import Alamofire
 import SwiftyJSON
 import Async
 
-typealias Results = [TcpLifecycleEvent: Int]
+typealias Results = [Lifecycle: Int]
 let BASE_PORT = 12345
 
 class ViewController: UIViewController {
@@ -185,7 +185,7 @@ class ViewController: UIViewController {
     //////////////////////////////////////////////////
     
     @IBAction func http1FlurryPressed(sender: UIButton) {
-        let httpBenchmarker = HttpBenchmarker(version: 2, trials: 2)
+        let httpBenchmarker = HttpBenchmarker(version: .TWO, trials: 2)
         httpBenchmarker.collectAndUploadResults()
     }
     

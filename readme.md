@@ -71,6 +71,41 @@
   in on.
 * So I need a wrapper method `instrumentedGET(urlAndPort)``
 
+##### Try again
+* The new plan is to use the following code
+  ```swift
+  @IBOutlet var myWebView: UIWebView!
+  func displayURL() {
+    // let myURL = NSURL(string: "https://localhost:8443/index.html")
+    let myURL = NSURL(string: "http://www.wired.com")
+    let myURLTask = NSURLSession.sharedSession().dataTaskWithURL(myURL!) {
+      (data, response, error) in
+      if error == nil {
+        var htmlString = NSString(data: data, encoding: NSUTF8StringEncoding)
+        self.myWebView.loadHTMLString(myHtmlString as! String, baseURL: nil)
+      }
+    }
+  }
+  ```
+* __But what does it all even mean??__
+
+###### [NSURLSession](https://developer.apple.com/library/ios/documentation/Foundation/Reference/NSURLSession_class/)
+
+* Provides an API for downloading content
+* Supports authentication and background downloads while app is suspended
+* Supports `http` and `https` among others
+* The place to start is apparently [here][url-loading]
+* There is a lot there
+* It seems like I need to implement `NSURLSessionDataDelegate` and plug into
+  the `URLSession(_:dataTask:willCacheResponse:completionHandler:)` as well as
+  the `URLSession(_:dataTask:didReceiveData:)`.
+* Or _probably_, it should be `NSURLSessionDownloadDelegate`, for which I plug into `
+  URLSession(_:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedTo
+  Write:)` and `URLSession(_:downloadTask:didFinishDownloadingToURL:)`
+
+
+[url-loading]: https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/URLLoadingSystem/URLLoadingSystem.html#//apple_ref/doc/uid/10000165i
+
 ##### Caching
 * This is one of those things that could easily get pretty frustrating to deal
   with
