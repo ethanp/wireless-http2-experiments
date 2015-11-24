@@ -34,6 +34,7 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var debugTextArea: UITextView!
     @IBOutlet weak var progressBar: UIProgressView!
+    @IBOutlet weak var webView: UIWebView!
     
     // MARK: Attributes
     lazy var dateFormatter: NSDateFormatter = {
@@ -100,9 +101,8 @@ class ViewController: UIViewController {
             for i in 1...FOUR_MEGS {
                 let size = (1 << i)
                 let debugText = "downloading \(size) total bytes over \(count) conns"
-                debugPrint(debugText)
+                self.displayText(debugText)
                 Async.main {
-                    self.debugTextArea.text = debugText
                     self.progressBar.setProgress((Float(i-1))/Float(FOUR_MEGS), animated: true)
                 }
                 self.currentBenchmarker = TcpBenchmarker(
@@ -115,8 +115,8 @@ class ViewController: UIViewController {
                 // wait for results to be uploaded by the TcpBenchmarker
                 sema.wait()
             }
+            self.displayText("done uploading data")
             Async.main {
-                self.debugTextArea.text = "done uploading data"
                 self.progressBar.setProgress(1.0, animated: true)
             }
             Async.main(after: 1) {
@@ -147,11 +147,6 @@ class ViewController: UIViewController {
         return d1 as! [String : AnyObject]
     }
 
-    // TODO
-    func instrumentedGET(url: String, port: Int) {
-
-    }
-
     func uploadData(data: [String:AnyObject]) {
         //        let parameters = [
         //            "foo": [1,2,3],
@@ -180,18 +175,48 @@ class ViewController: UIViewController {
         return self.dateFormatter.stringFromDate(NSDate())
     }
     
+    func displayText(text: String) {
+        print(text)
+        Async.main {
+            self.debugTextArea.text = text
+        }
+    }
+    
     //////////////////////////////////////////////////
     // THIS IS WHERE THE HTTP EXPERIMENT CODE LIVES //
     //////////////////////////////////////////////////
     
     @IBAction func http1FlurryPressed(sender: UIButton) {
-        let httpBenchmarker = HttpBenchmarker(version: .TWO, trials: 2)
-        httpBenchmarker.collectAndUploadResults()
+//        HttpBenchmarker(version: .ONE, trials: 2)
+//            .collectAndUploadResults()
+        displayURL()
+    }
+    
+    func displayURL() {
+        // let myURL = NSURL(string: "https://localhost:8443/index.html")
+        let wired = NSURL(string: "http://www.wired.com")!
+        displayText("retrieving \(wired)")
+        
+        /* This is just a test. With sharedSession, we cannot receive
+            onData events, and we cannot manage cache
+        */
+        NSURLSession.sharedSession().dataTaskWithURL(wired) {
+            (data, response, error) in
+            if let err = error {
+                self.displayText("today, the music died: \(err)")
+                fatalError()
+            }
+            self.displayText("rendering received data for \(wired)")
+            let htmlString = NSString(data: data!, encoding: NSUTF8StringEncoding)
+            
+            // this (rendering html to webView) is async (need callback or something)
+            self.webView.loadHTMLString(htmlString as! String, baseURL: nil)
+        }.resume()
     }
     
     @IBAction func http2FlurryPressed(sender: UIButton) {
-        
+        HttpBenchmarker(version: .TWO, trials: 2)
+            .collectAndUploadResults()
     }
-    
 }
 

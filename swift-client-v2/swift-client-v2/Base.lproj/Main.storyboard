@@ -51,21 +51,20 @@
                                 </connections>
                             </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="Not uploading" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="aYQ-B5-37J">
-                                <rect key="frame" x="26" y="259" width="335" height="46"/>
+                                <rect key="frame" x="24" y="205" width="335" height="46"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="46" id="2pY-S9-WaV"/>
-                                    <constraint firstAttribute="width" constant="335" id="Cex-Sh-BkV"/>
+                                    <constraint firstAttribute="height" constant="46" id="29l-sV-4vh"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="ZgM-VO-ovy">
-                                <rect key="frame" x="74" y="402" width="150" height="2"/>
+                                <rect key="frame" x="24" y="249" width="150" height="2"/>
                                 <animations/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="150" id="yQo-A8-DFf"/>
+                                    <constraint firstAttribute="width" constant="150" id="Yic-9F-LF4"/>
                                 </constraints>
                             </progressView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QLD-fS-4Fn">
@@ -95,25 +94,35 @@
                                     <action selector="http2FlurryPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="c2A-Ba-rLc"/>
                                 </connections>
                             </button>
+                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Lq3-h2-4ew">
+                                <rect key="frame" x="24" y="270" width="331" height="377"/>
+                                <animations/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="deviceRGB"/>
+                            </webView>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="Lq3-h2-4ew" firstAttribute="leading" secondItem="ZgM-VO-ovy" secondAttribute="leading" id="38a-Tc-v0O"/>
+                            <constraint firstItem="aYQ-B5-37J" firstAttribute="top" secondItem="OWX-ey-Cjr" secondAttribute="bottom" constant="8" symbolic="YES" id="5en-Qt-SCv"/>
                             <constraint firstItem="JMZ-IE-wU0" firstAttribute="top" secondItem="NMX-CV-bKU" secondAttribute="bottom" constant="3" id="6IA-zM-2mc"/>
                             <constraint firstItem="NMX-CV-bKU" firstAttribute="top" secondItem="QLD-fS-4Fn" secondAttribute="bottom" constant="8" symbolic="YES" id="6ap-gK-ASo"/>
+                            <constraint firstItem="aYQ-B5-37J" firstAttribute="trailing" secondItem="YhQ-SY-1t7" secondAttribute="trailing" id="8iq-wx-Vqo"/>
                             <constraint firstItem="NFL-Zz-51E" firstAttribute="baseline" secondItem="2wj-mJ-Oct" secondAttribute="baseline" id="97q-a8-oJP"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Lq3-h2-4ew" secondAttribute="trailing" constant="4" id="9gO-aw-bjE"/>
                             <constraint firstItem="NFL-Zz-51E" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="AgG-hF-6cG"/>
+                            <constraint firstAttribute="bottom" secondItem="Lq3-h2-4ew" secondAttribute="bottom" constant="20" symbolic="YES" id="H6Q-Kd-Pe3"/>
                             <constraint firstItem="YhQ-SY-1t7" firstAttribute="trailing" secondItem="NFL-Zz-51E" secondAttribute="trailing" id="Igc-Sc-hJ1"/>
                             <constraint firstItem="OWX-ey-Cjr" firstAttribute="leading" secondItem="JMZ-IE-wU0" secondAttribute="leading" id="K0h-bx-eBi"/>
                             <constraint firstItem="NMX-CV-bKU" firstAttribute="leading" secondItem="QLD-fS-4Fn" secondAttribute="leading" id="KQe-wl-etO"/>
-                            <constraint firstItem="aYQ-B5-37J" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="Lti-oF-UkR"/>
+                            <constraint firstItem="ZgM-VO-ovy" firstAttribute="leading" secondItem="aYQ-B5-37J" secondAttribute="leading" id="Lqr-bq-h6v"/>
                             <constraint firstItem="OWX-ey-Cjr" firstAttribute="top" secondItem="JMZ-IE-wU0" secondAttribute="bottom" constant="8" symbolic="YES" id="Zba-1W-lBi"/>
-                            <constraint firstItem="ZgM-VO-ovy" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="58" id="bK4-f5-FdW"/>
-                            <constraint firstItem="aYQ-B5-37J" firstAttribute="top" secondItem="OWX-ey-Cjr" secondAttribute="bottom" constant="62" id="cWA-pN-Mun"/>
                             <constraint firstItem="QLD-fS-4Fn" firstAttribute="leading" secondItem="2wj-mJ-Oct" secondAttribute="leading" id="gTm-Q3-hS8"/>
+                            <constraint firstItem="ZgM-VO-ovy" firstAttribute="bottom" secondItem="aYQ-B5-37J" secondAttribute="bottom" id="npb-Ec-AVP"/>
                             <constraint firstItem="QLD-fS-4Fn" firstAttribute="top" secondItem="2wj-mJ-Oct" secondAttribute="bottom" constant="8" symbolic="YES" id="nqH-jS-AMC"/>
-                            <constraint firstItem="ZgM-VO-ovy" firstAttribute="top" secondItem="aYQ-B5-37J" secondAttribute="bottom" constant="97" id="r8Y-XF-jMJ"/>
+                            <constraint firstItem="Lq3-h2-4ew" firstAttribute="top" secondItem="ZgM-VO-ovy" secondAttribute="bottom" constant="19" id="pL0-UJ-poP"/>
                             <constraint firstItem="2wj-mJ-Oct" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="t8M-Jv-xlq"/>
+                            <constraint firstItem="aYQ-B5-37J" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="8" id="viJ-ZD-Ymx"/>
                             <constraint firstItem="JMZ-IE-wU0" firstAttribute="leading" secondItem="NMX-CV-bKU" secondAttribute="leading" id="vyH-Fq-RCW"/>
                             <constraint firstItem="YhQ-SY-1t7" firstAttribute="baseline" secondItem="QLD-fS-4Fn" secondAttribute="baseline" id="xUs-RK-gJ4"/>
                             <constraint firstItem="2wj-mJ-Oct" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="zke-fT-cAj"/>
@@ -130,11 +139,12 @@
                         <outlet property="progressBar" destination="ZgM-VO-ovy" id="xOz-lf-9yg"/>
                         <outlet property="simpleRequestButton" destination="2wj-mJ-Oct" id="Sup-gs-yXc"/>
                         <outlet property="timeTcpButton" destination="QLD-fS-4Fn" id="jvI-WV-QiG"/>
+                        <outlet property="webView" destination="Lq3-h2-4ew" id="JCv-Y4-VBZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="215" y="387"/>
+            <point key="canvasLocation" x="214.5" y="386.5"/>
         </scene>
     </scenes>
 </document>
