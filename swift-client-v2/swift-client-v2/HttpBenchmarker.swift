@@ -18,7 +18,7 @@ enum HttpVersion {
 /**
 What this does is: TODO
 */
-class HttpBenchmarker: Benchmarker, ResultMgr, NSURLSessionDownloadDelegate {
+class HttpBenchmarker: Benchmarker, ResultMgr, NSURLSessionDataDelegate {
     
     var httpVersion: HttpVersion
     var numTrials: Int
@@ -97,5 +97,17 @@ class HttpBenchmarker: Benchmarker, ResultMgr, NSURLSessionDownloadDelegate {
         print("didFinishDownloading was called")
     }
     
+    /* Sent when data is available for the delegate to consume.  It is
+    * assumed that the delegate will retain and not copy the data.  As
+    * the data may be discontiguous, you should use
+    * [NSData enumerateByteRangesUsingBlock:] to access it.
+    */
+    func URLSession(
+        session: NSURLSession,
+        dataTask: NSURLSessionDataTask,
+        didReceiveData data: NSData)
+    {
+        print("didReceiveData was called")
+    }
 
 }
