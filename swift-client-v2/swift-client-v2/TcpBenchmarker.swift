@@ -67,7 +67,7 @@ class TcpBenchmarker: ResultMgr {
      2. collects performance benchmarks
      3. uploads collected data to `dataserver.rb`
      */
-    func collectAndUploadResults() {
+    func collectAndUploadResults() -> TcpBenchmarker {
         print("collecting results")
         for i in 0..<syncCount! {
             self.conns[i].recordDataFor(
@@ -76,6 +76,7 @@ class TcpBenchmarker: ResultMgr {
                 bytesToDwnld: max(bytesToDwnld! / syncCount!, 1)
             )
         }
+        return self
     }
     
     func getOnWifi() -> Bool {

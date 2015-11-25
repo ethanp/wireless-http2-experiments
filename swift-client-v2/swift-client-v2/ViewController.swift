@@ -35,12 +35,14 @@ class ViewController: UIViewController {
     // MARK: Button Responses
     @IBAction func fireRepeatedly(sender: UIButton)     { exploreTheSpace(1) }
     @IBAction func fiveConnRepeatedly(sender: UIButton) { exploreTheSpace(5) }
+
     @IBAction func runHttpExperiment(sender: UIButton) {
-        HttpBenchmarker(vc: self)
-            .collectAndUploadResults()
+        Async.userInitiated {
+            HttpBenchmarker(vc: self, repsPerProtocol: 2).doIt()
+        }
     }
     
-    // just used in exploreTheSpace, maybe could be moved into that method
+    // could be inside func exploreTheSpace, but that would produce a compiler warning
     var currentBenchmarker: TcpBenchmarker?
     
     func exploreTheSpace(count: Int) {
@@ -53,8 +55,7 @@ class ViewController: UIViewController {
         Async.userInitiated {
             for i in 1...FOUR_MEGS {
                 let size = (1 << i)
-                let debugText = "downloading \(size) total bytes over \(count) conns"
-                self.displayText(debugText)
+                self.displayText("downloading \(size) total bytes over \(count) conns")
                 Async.main {
                     self.progressBar.setProgress((Float(i-1))/Float(FOUR_MEGS), animated: true)
                 }
@@ -62,8 +63,7 @@ class ViewController: UIViewController {
                     syncCount: count,
                     bytesToDwnld: size,
                     sema: sema
-                )
-                self.currentBenchmarker!.collectAndUploadResults()
+                ).collectAndUploadResults()
                 
                 // wait for results to be uploaded by the TcpBenchmarker
                 sema.wait()
@@ -81,8 +81,8 @@ class ViewController: UIViewController {
     // MARK: Utilities
     
     func displayText(text: AnyObject) {
-        print(text)
         Async.main {
+            print(text)
             self.debugTextArea.text = "\(text)"
         }
     }
