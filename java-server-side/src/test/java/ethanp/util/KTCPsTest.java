@@ -1,4 +1,4 @@
-package ethanp.experiments.kTcp;
+package ethanp.util;
 
 import ethanp.experiments.KTCPs;
 import org.junit.Test;

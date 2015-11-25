@@ -1,6 +1,5 @@
-package ethanp;
+package ethanp.examples;
 
-import ethanp.examples.HelloWorld;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -12,7 +11,7 @@ import org.eclipse.jetty.servlets.PushSessionCacheFilter;
 /**
  * Ethan Petuchowski 10/21/15
  */
-public class Http2Server {
+public class BerryBasicHttp2Server {
     public static void main(String[] args) throws Exception {
 
         Server server = new Server(8080);
