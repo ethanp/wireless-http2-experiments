@@ -39,22 +39,25 @@ class HttpBenchmarker: ResultMgr {
                 sema.signal()
             }
         }
-        uploadResults(results)
     }
     
     func collectResult(vrsn: HttpVersion, forIndex i: Int)  {
-        EventedHttp(version: vrsn, vc: vc, resultMgr: self).collectResult(forIndex: i)
+        EventedHttp(version: vrsn, vc: vc, resultMgr: self)
+            .collectResult(forIndex: i)
     }
     
-    func uploadResults(results: [Results?]) {
+    /** Don't call it. This is called by ResultMgr.addResult */
+    override func uploadResults() {
         DataUploader.uploadResults([
+            "exper": "http",
             "results": resultsConv(),
-            "test": "http"
+            "onWifi": getOnWifi()
         ])
     }
 }
 
-class EventedHttp: Benchmarker, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate {
+class EventedHttp: Benchmarker, NSURLSessionDataDelegate,
+                            NSURLSessionDownloadDelegate {
     
     var httpVersion: HttpVersion
     var vc: ViewController
@@ -63,19 +66,32 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate, NSURLSessionDownloadDe
     let page = "index.html"
     
     lazy var sessionConfig: NSURLSessionConfiguration = {
-        let conf = NSURLSessionConfiguration.defaultSessionConfiguration()
+        let conf = NSURLSessionConfiguration
+            .defaultSessionConfiguration()
+        
+        // TODO this could be nice to fiddle with...
+        //
         conf.HTTPMaximumConnectionsPerHost = 5
+        
+        // my server's not gonna support pipelining anyway
         conf.HTTPShouldUsePipelining = false
-        conf.URLCache = nil             // no caching is to be performed
-        conf.URLCredentialStorage = nil // no credential storage is to be used
-        conf.HTTPCookieStorage = nil    // no cookies should be handled
+        // no caching is to be performed
+        conf.URLCache = nil
+        // no credential storage is to be used
+        conf.URLCredentialStorage = nil
+        // no cookies should be handled
+        conf.HTTPCookieStorage = nil
         conf.allowsCellularAccess = true
         conf.requestCachePolicy = .ReloadIgnoringLocalCacheData
         conf.HTTPShouldSetCookies = false
         return conf
     }()
     
-    init(version: HttpVersion, vc: ViewController, resultMgr: ResultMgr) {
+    init(
+        version: HttpVersion,
+        vc: ViewController,
+        resultMgr: ResultMgr
+    ) {
         self.httpVersion = version
         self.vc = vc
         super.init(resultMgr: resultMgr)
@@ -90,8 +106,12 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate, NSURLSessionDownloadDe
         let ses = NSURLSession(
             configuration: sessionConfig,
             delegate: self,
-            delegateQueue: nil // create a bg-thread for this task
-//            delegateQueue: NSOperationQueue.mainQueue() // maybe better? dunno
+
+            // create a bg-thread for this task
+            delegateQueue: nil
+            
+            // maybe better? dunno
+//            delegateQueue: NSOperationQueue.mainQueue()
         )
         
         // To make absolutely sure there is NO CACHING going on,
@@ -100,29 +120,29 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate, NSURLSessionDownloadDe
         ses.resetWithCompletionHandler {
             self.timestampEvent(.START)
 
-            //        https://localhost:\(port())/index.html
-            //        https://localhost:8444/index.html
-            //        https://http2.akamai.com/
-            //        http://www.wired.com
+            // https://localhost:\(port())/index.html
+            // https://localhost:8444/index.html
+            // https://http2.akamai.com/
+            // http://www.wired.com
             
             let testURL = NSURL(string: "http://www.wired.com")!
             self.vc.displayText("retrieving \(testURL)")
-            ses.downloadTaskWithRequest(NSURLRequest(URL: testURL)).resume()
+            ses.downloadTaskWithRequest(
+                NSURLRequest(URL: testURL)
+            ).resume()
             self.sema.wait()
         }
         resultMgr!.addResult(collectedData, forIndex: i)
     }
-    /* Sent when a download task that has completed a download.  The delegate should
-     * copy or move the file at the given location to a new location as it will be
-     * removed when the delegate message returns. URLSession:task:didCompleteWithError:
-     * will still be called.
-     */
+    
+    /* Sent when a download task that has completed a download. */
     func URLSession(
         session: NSURLSession,
         downloadTask: NSURLSessionDownloadTask,
         didFinishDownloadingToURL location: NSURL)
     {
-        vc.displayText("finished downloading at \(now() % 10000000)")
+        vc.displayText(
+            "finished downloading at \(now() % 10000000)")
         self.timestampEvent(.CLOSED)
         self.sema.signal()
     }

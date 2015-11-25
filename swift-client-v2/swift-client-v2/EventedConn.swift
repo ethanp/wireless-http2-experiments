@@ -39,7 +39,7 @@ class EventedConn: Benchmarker, NSStreamDelegate {
         // Note: typealias NSTimeInterval = Double
         timestampEvent(.START)
         
-        // TODO: I'm having trouble figuring out what EXACTLY this does
+        // HEH: I'm having trouble figuring out what EXACTLY this does
         NSStream.getStreamsToHostWithName(
             host,
             port: port,
@@ -83,9 +83,6 @@ class EventedConn: Benchmarker, NSStreamDelegate {
                 // note stream is open
                 timestampEvent(.OPEN)
 
-            // TODO: this is buggy. 
-            // If there are > 8 bytes available,
-            // I don't read them!
             case NSStreamEvent.HasBytesAvailable:
                 print("input: HasBytesAvailable")
                 

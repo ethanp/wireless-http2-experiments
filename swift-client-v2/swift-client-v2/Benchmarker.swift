@@ -24,14 +24,31 @@ enum Lifecycle: String {
      */
     
     var results: [Results?]!
+
+    /** how many datapoints we have already collected */
+    var done = 0
+    
+    var sema = Semaphore()
+
     init(numResults: Int) {
         self.results = [Results?](
             count: numResults,
             repeatedValue: nil
         )
     }
+    
+    /** This method MUST be overriden (otw RuntimeException!) */
+    func uploadResults() {
+        print("method not implemented")
+        fatalError()
+    }
+    
     func addResult(result: Results, forIndex i: Int) {
-        results.insert(result, atIndex: i)
+        results[i] = result
+        if ++done == results.count {
+            uploadResults()
+            sema.signal()
+        }
     }
     
     func resultsConv() -> [[String : Int]] {

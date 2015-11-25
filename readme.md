@@ -141,20 +141,20 @@
 
 ```
 button.fire {
-    let sema
     bg.thread {
     for size in sizes {
         TcpBenchmarker(sema).go()
-        sema.down()
     }
     displayText("done")
 }
 
 TcpBenchmarker: ResultMgr 
+    let sema
     func go {
         for i in 1...numConcurrentConns {
             eventedConns[i].recordEventsOnPort(i)
         }
+        sema.down()
     }
     var results = Results[numConcurrentConns]
     var numFull = 0

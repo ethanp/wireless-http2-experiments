@@ -11,10 +11,6 @@ import SwiftyJSON
 import Alamofire
 
 /**
- 
- TODO: make a renew() function or something so this thing drops all its
-       data and can be re-used
- 
  What this does is
  
  1. Connects to `syncCount` TCP servers at ports
@@ -31,11 +27,6 @@ class TcpBenchmarker: ResultMgr {
     
     /** how many TCP servers to connect and download concurrently from */
     var syncCount: Int?
-    
-    /** how many TCP servers we have finished collecting performance data for */
-    var done = 0
-    
-    var sema = Semaphore()
     
     var bytesToDwnld: Int?
     
@@ -69,7 +60,7 @@ class TcpBenchmarker: ResultMgr {
         return self
     }
     
-    func uploadResults() {
+    override func uploadResults() {
         print("uploading results: \(resultsAsJson())")
         DataUploader.uploadResults([
             "conns":   syncCount!,
@@ -78,7 +69,6 @@ class TcpBenchmarker: ResultMgr {
             "onWifi":  getOnWifi(),
             "bytes":   bytesToDwnld!
         ])
-        sema.signal()
     }
 
     
@@ -106,8 +96,7 @@ class TcpBenchmarker: ResultMgr {
     override func addResult(result: Results, forIndex i: Int) {
         results[i] = result
         print("added result \(result) to \(i)")
-        done++
-        if done == syncCount {
+        if ++done == syncCount {
             uploadResults()
         }
     }
