@@ -51,11 +51,6 @@
                                     <constraint firstAttribute="width" constant="150" id="Yic-9F-LF4"/>
                                 </constraints>
                             </progressView>
-                            <webView contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lq3-h2-4ew">
-                                <rect key="frame" x="24" y="270" width="331" height="377"/>
-                                <animations/>
-                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="deviceRGB"/>
-                            </webView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NFL-Zz-51E">
                                 <rect key="frame" x="243" y="20" width="112" height="30"/>
                                 <animations/>
@@ -64,16 +59,34 @@
                                     <action selector="runHttpExperiment:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tsV-vh-B4q"/>
                                 </connections>
                             </button>
+                            <webView contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lq3-h2-4ew">
+                                <rect key="frame" x="24" y="270" width="331" height="377"/>
+                                <animations/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="deviceRGB"/>
+                            </webView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SIC-C5-sNl">
+                                <rect key="frame" x="274" y="58" width="81" height="30"/>
+                                <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="81" id="Krz-yO-2wc"/>
+                                </constraints>
+                                <state key="normal" title="Display site"/>
+                                <connections>
+                                    <action selector="displayWebPage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5f7-bw-gam"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Lq3-h2-4ew" firstAttribute="leading" secondItem="ZgM-VO-ovy" secondAttribute="leading" id="38a-Tc-v0O"/>
+                            <constraint firstItem="SIC-C5-sNl" firstAttribute="baseline" secondItem="OWX-ey-Cjr" secondAttribute="baseline" id="76I-NC-CV1"/>
                             <constraint firstAttribute="trailingMargin" secondItem="Lq3-h2-4ew" secondAttribute="trailing" constant="4" id="9gO-aw-bjE"/>
                             <constraint firstItem="OWX-ey-Cjr" firstAttribute="leading" secondItem="JMZ-IE-wU0" secondAttribute="leading" id="BOl-Q6-FqJ"/>
                             <constraint firstItem="NFL-Zz-51E" firstAttribute="baseline" secondItem="JMZ-IE-wU0" secondAttribute="baseline" id="GkS-Fm-xnx"/>
                             <constraint firstAttribute="bottom" secondItem="Lq3-h2-4ew" secondAttribute="bottom" constant="20" symbolic="YES" id="H6Q-Kd-Pe3"/>
                             <constraint firstItem="ZgM-VO-ovy" firstAttribute="leading" secondItem="aYQ-B5-37J" secondAttribute="leading" id="Lqr-bq-h6v"/>
+                            <constraint firstItem="SIC-C5-sNl" firstAttribute="trailing" secondItem="NFL-Zz-51E" secondAttribute="trailing" id="dju-fY-1fj"/>
                             <constraint firstItem="JMZ-IE-wU0" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="hPC-vX-2zD"/>
                             <constraint firstItem="NFL-Zz-51E" firstAttribute="trailing" secondItem="Lq3-h2-4ew" secondAttribute="trailing" id="ip1-KV-wmH"/>
                             <constraint firstItem="OWX-ey-Cjr" firstAttribute="top" secondItem="JMZ-IE-wU0" secondAttribute="bottom" constant="8" symbolic="YES" id="jtT-8p-QyS"/>

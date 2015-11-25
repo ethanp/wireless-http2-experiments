@@ -124,8 +124,8 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
             // https://localhost:8444/index.html
             // https://http2.akamai.com/
             // http://www.wired.com
-            
-            let testURL = NSURL(string: "http://www.wired.com")!
+            let testURL = NSURL(string: "https://localhost:8443/index.html")!
+//            let testURL = NSURL(string: "http://www.wired.com")!
             self.vc.displayText("retrieving \(testURL)")
             ses.downloadTaskWithRequest(
                 NSURLRequest(URL: testURL)
@@ -159,4 +159,30 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
     {
         print("didWrite \(bytesWritten) bytes at: \(now())")
     }
+    
+    func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
+        print("did Become Invalid With Error: \(error)")
+    }
+    func URLSession(
+        session: NSURLSession,
+        didReceiveChallenge challenge: NSURLAuthenticationChallenge,
+        completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?)
+        -> Void) {
+            print("received challenge")
+            let protectionSpace = challenge.protectionSpace
+            let theSender = challenge.sender!
+            if protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
+                if let theTrust = protectionSpace.serverTrust{
+                    let theCredential = NSURLCredential(trust: theTrust)
+                    theSender.useCredential(theCredential, forAuthenticationChallenge: challenge)
+                    return
+                }
+            }
+            theSender.performDefaultHandlingForAuthenticationChallenge!(challenge)
+            return
+    }
+    func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
+        print("finished Background Session: \(session)")
+    }
+
 }

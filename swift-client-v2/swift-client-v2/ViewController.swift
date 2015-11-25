@@ -42,6 +42,39 @@ class ViewController: UIViewController {
         }
     }
     
+    @IBAction func displayWebPage(sender: UIButton) {
+        let h2Url = NSURL(string: "https://localhost:8443/index.html")!
+        let h1Url = NSURL(string: "https://localhost:8444/index.html")!
+        print("downloading \(h1Url)")
+        secondTry(h1Url)
+    }
+    
+    func secondTry(myUrl: NSURL) {
+        let downloadDelegate = ArbitraryTruster(view: self)
+        let ses = NSURLSession(
+            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+            delegate: downloadDelegate,
+            delegateQueue: nil
+        )
+        ses.downloadTaskWithURL(myUrl).resume()
+    }
+    
+    func completed(location: NSURL) {
+        print("downloaded")
+        var htmlString = "NON, MERCÍ"
+        do {
+            htmlString = try String.init(
+                contentsOfURL: location,
+                encoding: NSUTF8StringEncoding
+            )
+        } catch {
+            print("ERRORED OUT")
+            fatalError()
+        }
+        print("contents: \(htmlString)")
+        self.webView.loadHTMLString(htmlString, baseURL: nil)
+    }
+    
     // could be inside func exploreTheSpace, but that would produce a compiler warning
     var currentBenchmarker: TcpBenchmarker?
     
@@ -79,6 +112,46 @@ class ViewController: UIViewController {
         Async.main {
             print(text)
             self.debugTextArea.text = "\(text)"
+        }
+    }
+    
+    // developer.apple.com/library/ios/technotes/tn2232/_index.html
+    class ArbitraryTruster : NSObject, NSURLSessionDelegate, NSURLSessionDownloadDelegate {
+        var view: ViewController
+        init(view: ViewController) {
+            self.view = view
+        }
+        func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
+            print("Invalidated: \(error)")
+        }
+        func URLSession(
+            session: NSURLSession,
+            didReceiveChallenge challenge: NSURLAuthenticationChallenge,
+            completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?)
+        -> Void) {
+            print("received challenge")
+            let protectionSpace = challenge.protectionSpace
+            let theSender = challenge.sender!
+            if protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
+                if let theTrust = protectionSpace.serverTrust{
+                    let theCredential = NSURLCredential(trust: theTrust)
+                    theSender.useCredential(theCredential, forAuthenticationChallenge: challenge)
+                    completionHandler(.UseCredential, theCredential)
+                    return
+                }
+            }
+            theSender.performDefaultHandlingForAuthenticationChallenge!(challenge)
+            return
+        }
+        func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
+            print("finished Background Session: \(session)")
+        }
+        func URLSession(
+            session: NSURLSession,
+            downloadTask: NSURLSessionDownloadTask,
+            didFinishDownloadingToURL location: NSURL
+        ) {
+            self.view.completed(location)
         }
     }
 }
