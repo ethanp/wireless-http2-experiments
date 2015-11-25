@@ -24,7 +24,7 @@ class ResultMgr {
      Once these are collected they are auto-uploaded
      to the `DataServer`
      */
-    var results = [Results?]()
+    var results: [Results?]
 
     /** how many datapoints we have already collected */
     var done = 0
@@ -32,7 +32,10 @@ class ResultMgr {
     let sema = Semaphore()
 
     init(numResults: Int) {
-        results.reserveCapacity(numResults)
+        results = [Results?](
+            count: numResults,
+            repeatedValue: nil
+        )
     }
     
     /** This method MUST be overriden (otw RuntimeException!)
@@ -44,12 +47,21 @@ class ResultMgr {
         fatalError()
     }
     
-    func addResult(result: Results, forIndex i: Int) {
+    func addResult(
+        result: Results,
+        forIndex i: Int,
+        semaUp: Bool
+    ) {
         results[i] = result
+        if semaUp {
+            sema.signal()
+        }
         if ++done == results.count {
             print("uploading results: \(resultsAsJson())")
             uploadResults()
-            sema.signal()
+            if !semaUp {
+                sema.signal()
+            }
         }
     }
 

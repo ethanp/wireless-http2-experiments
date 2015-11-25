@@ -121,7 +121,11 @@ class EventedConn: Benchmarker, NSStreamDelegate {
                         closeStreams()
                         timestampEvent(.CLOSED)
                         
-                        resultMgr!.addResult(collectedData, forIndex: j())
+                        resultMgr!.addResult(
+                            collectedData,
+                            forIndex: j(),
+                            semaUp: false
+                        )
                     }
                 } else {
                     print("j=\(j()) ignoring bc \(bytesRcvd) ≥ \(bytesToDwnld!)")

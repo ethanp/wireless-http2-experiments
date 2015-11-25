@@ -23,7 +23,8 @@ class HttpBenchmarker: ResultMgr {
     init(vc: ViewController, repsPerProtocol: Int) {
         self.vc = vc
         self.repsPerProtocol = repsPerProtocol
-        super.init(numResults: repsPerProtocol * HttpVersion.allValues.count)
+        super.init(numResults:
+            repsPerProtocol * HttpVersion.allValues.count)
     }
     
     /** this _blocks_ and therefore MUST NOT be executed on the `Main` thread */
@@ -32,13 +33,15 @@ class HttpBenchmarker: ResultMgr {
     func doIt() {
         for vrsn in HttpVersion.allValues {
             print("collecting data for http \(vrsn.rawValue)")
-            for i in 1...repsPerProtocol {
+            for i in 0..<repsPerProtocol {
                 EventedHttp(
                     version: vrsn,
-                    resultIndex: i+vrsn.rawValue*i,
+                    resultIndex:
+                        i+(vrsn.rawValue-1)*repsPerProtocol,
                     vc: vc,
                     resultMgr: self
                 ).go()
+                sema.wait()
             }
         }
     }
@@ -102,7 +105,6 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
         return httpVersion == .ONE ? 8444 : 8443
     }
     
-    let sema = Semaphore()
     func go() {
         let ses = NSURLSession(
             configuration: sessionConfig,
@@ -112,7 +114,6 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
             // maybe better? dunno
 //            delegateQueue: NSOperationQueue.mainQueue()
         )
-        
         // To make absolutely sure there is NO CACHING going on,
         // we configure the session to not *do* caching, then we
         // clear any caches before initiating the download task.
@@ -140,8 +141,12 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
     {
         vc.displayText(
             "finished downloading at \(now() % 10_000_000)")
-        self.timestampEvent(.CLOSED)
-        self.resultMgr!.addResult(collectedData, forIndex: i)
+        timestampEvent(.CLOSED)
+        resultMgr!.addResult(
+            collectedData,
+            forIndex: index,
+            semaUp: true
+        )
     }
     
     /* Sent periodically to notify the delegate of download progress. */

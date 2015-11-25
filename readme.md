@@ -137,36 +137,50 @@
 
 # Pseudocode
 
+## Shared
+
+```swift
+ResultMgr {
+
+    var results = Results[num]
+    var numFull = 0
+    let sema = Semaphore(0)
+
+    func addResult(notes, forIndex: i, release: Bool) {
+        results[i] = notes
+        if release {
+            sema.up()
+        }
+        if ++numFull == numResults {
+            upload(results)
+            if !release {
+                sema.up()
+            }
+        }
+    }
+}
+```
+
 ## Tcp Experiment
 
 ```swift
 button.fire {
     bg.thread {
     for size in sizes {
-        TcpBenchmarker(sema).go()
+        TcpBenchmarker().go()
     }
     displayText("done")
 }
 
-TcpBenchmarker: ResultMgr
-    let sema
+TcpBenchmarker: ResultMgr {
     func go {
         for i in 1...numConcurrentConns {
             eventedConns[i].recordEventsOnPort(i)
         }
     }
-    var results = Results[numConcurrentConns]
-    var numFull = 0
-    func addResult(notes, forIndex: i) {
-        results[i] = notes
-        if ++numFull == numConcurrentConns {
-            upload(results)
-            sema.up()
-        }
-    }
 }
 
-EventedConns: Benchmarker, StreamDelegate {
+class EventedConns: Benchmarker, StreamDelegate {
     func recordEventsOnPort(i) {
         note(Start)
         openConn(i)
@@ -186,15 +200,14 @@ EventedConns: Benchmarker, StreamDelegate {
 
 ## HttpExperiment
 
-```
+```swift
 button.fire {
     bg.thread {
         HttpBenchmarker.go()
     }
 }
 
-HttpBenchmarker {
-    let sema
+class HttpBenchmarker {
     func go() {
         for vrsn in [1, 2] {
             for rep in 1...numReps {
@@ -204,18 +217,24 @@ HttpBenchmarker {
                     iphoneDisplay: screenRef,
                     resultMgr: self
                 ).go()
+                sema.down()
             }
         }
     }
 }
 
-EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
+class EventedHttp: Benchmarker, DownloadDelegate {
     func collectResult(forIndex i: Int) {
         let session = NSURLSession(config: myConfig, delegate: self)
         session.resetThen {
+            note(Open)
             session.downloadTask(url).resume()
         }
-
+    }
+    Download.handle {
+        case Finished:
+            note(Closed)
+            resultMgr.addResult(notes, index: i, release: true)
     }
 }
 ```
