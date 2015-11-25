@@ -9,7 +9,6 @@
 import Foundation
 import SwiftyJSON
 import Alamofire
-import ReachabilitySwift
 
 /**
  
@@ -30,30 +29,20 @@ class TcpBenchmarker: ResultMgr {
      */
     var conns = [EventedConn]()
     
-    /** Array of benchmark datapoints for each TCP server.
-     Once these are collected they will be automatically uploaded
-     to the DataServer
-     */
-    var results = [Results]()
-    
     /** how many TCP servers to connect and download concurrently from */
     var syncCount: Int?
     
     /** how many TCP servers we have finished collecting performance data for */
     var done = 0
     
-    var sema: Semaphore?
+    var sema = Semaphore()
     
     var bytesToDwnld: Int?
     
-    init(syncCount: Int, bytesToDwnld: Int, sema: Semaphore? = nil) {
+    init(syncCount: Int, bytesToDwnld: Int) {
+        super.init(numResults: syncCount)
         self.syncCount = syncCount
         self.bytesToDwnld = bytesToDwnld // TOTAL bytes over ALL conns
-        
-        if let s = sema {
-            self.sema = s
-        }
-        
         for _ in 1...syncCount {
             conns.append(EventedConn(resultMgr: self))
             results.append([:])
@@ -76,27 +65,8 @@ class TcpBenchmarker: ResultMgr {
                 bytesToDwnld: max(bytesToDwnld! / syncCount!, 1)
             )
         }
+        sema.wait()
         return self
-    }
-    
-    func getOnWifi() -> Bool {
-        let reachability : Reachability
-        do {
-            reachability = try Reachability.reachabilityForInternetConnection()
-        }
-        catch {
-            print("Unable to create Reachability")
-            fatalError()
-        }
-        
-        if reachability.isReachableViaWiFi() {
-            print("Reachable via WiFi")
-            return true
-        }
-        else {
-            print("Reachable via Cellular")
-            return false
-        }
     }
     
     func uploadResults() {
@@ -108,30 +78,24 @@ class TcpBenchmarker: ResultMgr {
             "onWifi":  getOnWifi(),
             "bytes":   bytesToDwnld!
         ])
-        sema?.signal()
+        sema.signal()
     }
-    
-    private func resultsConv() -> [[String : Int]] {
-        var ugh = [[String:Int]]()
-        for resultData in results {
-            var dict = [String:Int]()
-            for (k, v) in resultData {
-                dict[k.stringName] = v
-            }
-            ugh.append(dict)
-        }
-        return ugh
-    }
+
     
     private func resultsAsJson() -> JSON {
         // there must be a better way...needs combinators
         var ugh = [JSON]()
         for resultData in results {
             var dict = [String:JSON]()
-            for (k, v) in resultData {
-                dict[k.stringName] = JSON(v)
+            if let result = resultData {
+                for (k, v) in result {
+                    dict[k.rawValue] = JSON(v)
+                }
+                ugh.append(JSON(dict))
+            } else {
+                print("result missing")
+                fatalError()
             }
-            ugh.append(JSON(dict))
         }
         return JSON(ugh)
     }
@@ -139,7 +103,7 @@ class TcpBenchmarker: ResultMgr {
     /** called by the EventedConn as part of implementing the `
         ResultMgr` protocol.
     */
-    func addResult(result: Results, forIndex i: Int) {
+    override func addResult(result: Results, forIndex i: Int) {
         results[i] = result
         print("added result \(result) to \(i)")
         done++

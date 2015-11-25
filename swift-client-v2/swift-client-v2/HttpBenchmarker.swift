@@ -17,12 +17,13 @@ enum HttpVersion: Int {
     static let allValues = [ONE, TWO]
 }
 
-class HttpBenchmarker {
+class HttpBenchmarker: ResultMgr {
     let vc: ViewController!
     let repsPerProtocol: Int!
     init(vc: ViewController, repsPerProtocol: Int) {
         self.vc = vc
         self.repsPerProtocol = repsPerProtocol
+        super.init(numResults: repsPerProtocol * HttpVersion.allValues.count)
     }
     
     /** this _blocks_ and therefore MUST NOT be executed on the `Main` thread */
@@ -30,26 +31,24 @@ class HttpBenchmarker {
     //      It doesn't seem to ever actually download the data.
     func doIt() {
         let sema = Semaphore(value: 1)
-        var results = [[String: AnyObject]]()
         for vrsn in HttpVersion.allValues {
             print("collecting data for http \(vrsn.rawValue)")
-            for _ in 1...repsPerProtocol {
+            for i in 1...repsPerProtocol {
                 sema.wait()
-                let result = collectResult(vrsn)
-                results.append(result)
+                collectResult(vrsn, forIndex: i+vrsn.rawValue*i)
                 sema.signal()
             }
         }
         uploadResults(results)
     }
     
-    func collectResult(vrsn: HttpVersion) -> [String: AnyObject] {
-        return EventedHttp(version: vrsn, vc: vc).collectResult()
+    func collectResult(vrsn: HttpVersion, forIndex i: Int)  {
+        EventedHttp(version: vrsn, vc: vc, resultMgr: self).collectResult(forIndex: i)
     }
     
-    func uploadResults(results: [[String: AnyObject]]) {
+    func uploadResults(results: [Results?]) {
         DataUploader.uploadResults([
-            "results": results,
+            "results": resultsConv(),
             "test": "http"
         ])
     }
@@ -62,8 +61,6 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate, NSURLSessionDownloadDe
     
     let ipAddr = "localhost"
     let page = "index.html"
-    
-    var result = [String:AnyObject]()
     
     lazy var sessionConfig: NSURLSessionConfiguration = {
         let conf = NSURLSessionConfiguration.defaultSessionConfiguration()
@@ -78,10 +75,10 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate, NSURLSessionDownloadDe
         return conf
     }()
     
-    init(version: HttpVersion, vc: ViewController) {
+    init(version: HttpVersion, vc: ViewController, resultMgr: ResultMgr) {
         self.httpVersion = version
         self.vc = vc
-        super.init(resultMgr: nil)
+        super.init(resultMgr: resultMgr)
     }
     
     func port() -> Int {
@@ -89,7 +86,7 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate, NSURLSessionDownloadDe
     }
     
     let sema = Semaphore()
-    func collectResult() -> [String: AnyObject] {
+    func collectResult(forIndex i: Int) {
         let ses = NSURLSession(
             configuration: sessionConfig,
             delegate: self,
@@ -113,8 +110,7 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate, NSURLSessionDownloadDe
             ses.downloadTaskWithRequest(NSURLRequest(URL: testURL)).resume()
             self.sema.wait()
         }
-        result["httpVersion"] = self.httpVersion.rawValue
-        return self.result
+        resultMgr!.addResult(collectedData, forIndex: i)
     }
     /* Sent when a download task that has completed a download.  The delegate should
      * copy or move the file at the given location to a new location as it will be

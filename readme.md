@@ -134,3 +134,69 @@
 * It sits there, expecting data to come in as a UTF-8 JSON String through a
   server socket.
 * It dumps incoming json strings into a file prefixed with the date and hour.
+
+# Pseudocode
+
+## Tcp Experiment
+
+```
+button.fire {
+    let sema
+    bg.thread {
+    for size in sizes {
+        TcpBenchmarker(sema).go()
+        sema.down()
+    }
+    displayText("done")
+}
+
+TcpBenchmarker: ResultMgr 
+    func go {
+        for i in 1...numConcurrentConns {
+            eventedConns[i].recordEventsOnPort(i)
+        }
+    }
+    var results = Results[numConcurrentConns]
+    var numFull = 0
+    func addResult(notes, forIndex: i) {
+        results[i] = notes
+        if ++numFull == numConcurrentConns {
+            upload(results)
+            sema.up()
+        }
+    }
+}
+
+EventedConns: StreamDelegate {
+    func recordEventsOnPort(i) {
+        note(Start)
+        openConn(i)
+    }
+    Stream.handle {
+        case Opened:
+            note(Open)
+        case Data:
+            case FirstByte
+                note(FirstByte)
+            case LastByte:
+                note(LastByte)
+                resultMgr.addResult(notes, i)
+    }
+}
+```
+
+## HttpExperiment
+
+```
+button.fire {
+    bg.thread {
+        HttpBenchmarker.go()
+    }
+}
+
+HttpBenchmarker {
+    func go() {
+
+    }
+}
+```

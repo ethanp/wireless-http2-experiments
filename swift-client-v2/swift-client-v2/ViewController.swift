@@ -46,7 +46,6 @@ class ViewController: UIViewController {
     var currentBenchmarker: TcpBenchmarker?
     
     func exploreTheSpace(count: Int) {
-        let sema = Semaphore()
         
         // amount of data downloaded grows EXPONENTIALLY
         // from 1 Byte to 4 MB
@@ -61,12 +60,8 @@ class ViewController: UIViewController {
                 }
                 self.currentBenchmarker = TcpBenchmarker(
                     syncCount: count,
-                    bytesToDwnld: size,
-                    sema: sema
+                    bytesToDwnld: size
                 ).collectAndUploadResults()
-                
-                // wait for results to be uploaded by the TcpBenchmarker
-                sema.wait()
             }
             self.displayText("done uploading data")
             Async.main {

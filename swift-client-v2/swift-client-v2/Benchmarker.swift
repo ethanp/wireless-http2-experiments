@@ -7,25 +7,70 @@
 //
 
 import Foundation
+import ReachabilitySwift
 
-enum Lifecycle : String {
+enum Lifecycle: String {
     case START = "START"
     case START_TIME = "START_TIME"
     case OPEN = "OPEN"
     case FIRST_BYTE = "FIRST_BYTE"
     case LAST_BYTE = "LAST_BYTE"
     case CLOSED = "CLOSED"
-    
-    // http://stackoverflow.com/questions/24113126/how-to-get-the-name-of-enumeration-value-in-swift
-    var stringName: String {
-        get {
-            return self.rawValue
-        }
-    }
 }
 
-protocol ResultMgr {
-    func addResult(result: Results, forIndex i: Int)
+ class ResultMgr {
+    /** Array of benchmark datapoints for each server.
+     Once these are collected they should be uploaded to the DataServer
+     */
+    
+    var results: [Results?]!
+    init(numResults: Int) {
+        self.results = [Results?](
+            count: numResults,
+            repeatedValue: nil
+        )
+    }
+    func addResult(result: Results, forIndex i: Int) {
+        results.insert(result, atIndex: i)
+    }
+    
+    func resultsConv() -> [[String : Int]] {
+        var ugh = [[String:Int]]()
+        for resultData in results {
+            if let result = resultData {
+                var dict = [String:Int]()
+                for (k, v) in result {
+                    dict[k.rawValue] = v
+                }
+                ugh.append(dict)
+            }
+            else {
+                print("missing a result")
+                fatalError()
+            }
+        }
+        return ugh
+    }
+    
+    func getOnWifi() -> Bool {
+        let reachability : Reachability
+        do {
+            reachability = try Reachability.reachabilityForInternetConnection()
+        }
+        catch {
+            print("Unable to create Reachability")
+            fatalError()
+        }
+        
+        if reachability.isReachableViaWiFi() {
+            print("Reachable via WiFi")
+            return true
+        }
+        else {
+            print("Reachable via Cellular")
+            return false
+        }
+    }
 }
 
 class Benchmarker: NSObject/*<-necessary*/ {
