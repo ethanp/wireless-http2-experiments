@@ -21,13 +21,14 @@ class EventedConn: Benchmarker, NSStreamDelegate {
     var bytesRcvd = 0
     
 
-    /** This function opens TCP streams to the given address and returns.
-        Asynchronously, this object receives bytes over those streams.
-        Eventually it downloads `bytesToDwnld` bytes, and finishes adding
-        entries into `collectedData: Results`.
+    /** This function opens TCP streams to the given address and 
+        returns. Asynchronously, this object receives bytes over
+        those streams. Eventually it downloads `bytesToDwnld` 
+        bytes, and finishes adding entries into 
+            `collectedData: Results`.
      
-        What it SHOULD be like is that `record(callback)` function that
-        the other guy wrote.
+        What it SHOULD be like is that `record(callback)` 
+        function that the other guy wrote.
     */
     func recordDataFor(host: String, onPort port: Int, bytesToDwnld: Int) {
 
@@ -47,16 +48,11 @@ class EventedConn: Benchmarker, NSStreamDelegate {
             outputStream: &outputStream
         )
 
-        if let iss = inputStream, oss = outputStream {
-            iss.delegate = self
-            oss.delegate = self
-            iss.scheduleInRunLoop(.mainRunLoop(), forMode: NSDefaultRunLoopMode)
-            oss.scheduleInRunLoop(.mainRunLoop(), forMode: NSDefaultRunLoopMode)
-            iss.open() // ASYNC: events come on the delegate
-            oss.open()
-        }
-        else {
-            print("ERROR: couldn't acquire stream!")
+        let streams: [NSStream?] = [inputStream, outputStream]
+        for i in streams {
+            i!.delegate = self
+            i!.scheduleInRunLoop(.mainRunLoop(), forMode: NSDefaultRunLoopMode)
+            i!.open()
         }
     }
     

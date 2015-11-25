@@ -61,7 +61,7 @@ class ViewController: UIViewController {
                 self.currentBenchmarker = TcpBenchmarker(
                     syncCount: count,
                     bytesToDwnld: size
-                ).collectAndUploadResults()
+                ).collectResults()
             }
             self.displayText("done uploading data")
             Async.main {

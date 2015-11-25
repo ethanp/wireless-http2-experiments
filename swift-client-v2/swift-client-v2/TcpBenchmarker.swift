@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import SwiftyJSON
 import Alamofire
 
 /**
@@ -47,7 +46,7 @@ class TcpBenchmarker: ResultMgr {
      2. collects performance benchmarks
      3. uploads collected data to `dataserver.rb`
      */
-    func collectAndUploadResults() -> TcpBenchmarker {
+    func collectResults() -> TcpBenchmarker {
         print("collecting results")
         for i in 0..<syncCount! {
             self.conns[i].recordDataFor(
@@ -61,7 +60,6 @@ class TcpBenchmarker: ResultMgr {
     }
     
     override func uploadResults() {
-        print("uploading results: \(resultsAsJson())")
         DataUploader.uploadResults([
             "conns":   syncCount!,
             "exper":   "TCP",
@@ -69,36 +67,6 @@ class TcpBenchmarker: ResultMgr {
             "onWifi":  getOnWifi(),
             "bytes":   bytesToDwnld!
         ])
-    }
-
-    
-    private func resultsAsJson() -> JSON {
-        // there must be a better way...needs combinators
-        var ugh = [JSON]()
-        for resultData in results {
-            var dict = [String:JSON]()
-            if let result = resultData {
-                for (k, v) in result {
-                    dict[k.rawValue] = JSON(v)
-                }
-                ugh.append(JSON(dict))
-            } else {
-                print("result missing")
-                fatalError()
-            }
-        }
-        return JSON(ugh)
-    }
-    
-    /** called by the EventedConn as part of implementing the `
-        ResultMgr` protocol.
-    */
-    override func addResult(result: Results, forIndex i: Int) {
-        results[i] = result
-        print("added result \(result) to \(i)")
-        if ++done == syncCount {
-            uploadResults()
-        }
     }
 }
 

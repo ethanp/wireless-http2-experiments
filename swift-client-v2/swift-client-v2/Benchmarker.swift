@@ -8,6 +8,7 @@
 
 import Foundation
 import ReachabilitySwift
+import SwiftyJSON
 
 enum Lifecycle: String {
     case START = "START"
@@ -18,26 +19,26 @@ enum Lifecycle: String {
     case CLOSED = "CLOSED"
 }
 
- class ResultMgr {
+class ResultMgr {
     /** Array of benchmark datapoints for each server.
-     Once these are collected they should be uploaded to the DataServer
+     Once these are collected they are auto-uploaded
+     to the `DataServer`
      */
-    
-    var results: [Results?]!
+    var results = [Results?]()
 
     /** how many datapoints we have already collected */
     var done = 0
     
-    var sema = Semaphore()
+    let sema = Semaphore()
 
     init(numResults: Int) {
-        self.results = [Results?](
-            count: numResults,
-            repeatedValue: nil
-        )
+        results.reserveCapacity(numResults)
     }
     
-    /** This method MUST be overriden (otw RuntimeException!) */
+    /** This method MUST be overriden (otw RuntimeException!)
+     What I want is an `abstract class` but I haven't found a
+     way to do that in Swift
+     */
     func uploadResults() {
         print("method not implemented")
         fatalError()
@@ -46,47 +47,55 @@ enum Lifecycle: String {
     func addResult(result: Results, forIndex i: Int) {
         results[i] = result
         if ++done == results.count {
+            print("uploading results: \(resultsAsJson())")
             uploadResults()
             sema.signal()
         }
     }
-    
+
+    /** learning Swift */
     func resultsConv() -> [[String : Int]] {
-        var ugh = [[String:Int]]()
-        for resultData in results {
-            if let result = resultData {
-                var dict = [String:Int]()
-                for (k, v) in result {
-                    dict[k.rawValue] = v
-                }
-                ugh.append(dict)
+        if results.contains(nill) {
+            print("missing a result")
+            fatalError()
+        }
+        func extractRawValues(result: Results?) -> [String : Int] {
+            return result!.mapPairs {
+                (k, v) in (k.rawValue, v)
             }
-            else {
-                print("missing a result")
+        }
+        
+        return results.map(extractRawValues)
+    }
+    
+    private func resultsAsJson() -> JSON {
+        var ugh = [JSON]()
+        for resultData in results {
+            var dict = [String:JSON]()
+            if let result = resultData {
+                for (k, v) in result {
+                    dict[k.rawValue] = JSON(v)
+                }
+                ugh.append(JSON(dict))
+            } else {
+                print("result missing")
                 fatalError()
             }
         }
-        return ugh
+        return JSON(ugh)
     }
     
     func getOnWifi() -> Bool {
         let reachability : Reachability
         do {
-            reachability = try Reachability.reachabilityForInternetConnection()
+            reachability = try Reachability
+                .reachabilityForInternetConnection()
         }
         catch {
             print("Unable to create Reachability")
             fatalError()
         }
-        
-        if reachability.isReachableViaWiFi() {
-            print("Reachable via WiFi")
-            return true
-        }
-        else {
-            print("Reachable via Cellular")
-            return false
-        }
+        return reachability.isReachableViaWiFi()
     }
 }
 
@@ -97,29 +106,50 @@ class Benchmarker: NSObject/*<-necessary*/ {
         self.resultMgr = resultMgr
     }
     
-    // `!` means it doesn't have to be init'd in init()
+    /** `!` means it doesn't have to be init'd in `init()` */
     var START_TIME: Int!
     
+    /** Records the number of *microseconds* elapsed since
+     recording the last `.START` */
     func timestampEvent(event: Lifecycle) {
         if event == .START {
             START_TIME = now()
             collectedData[.START_TIME] = START_TIME
         }
-        // # MICROSECONDS elapsed
+        // record microseconds elapsed
         collectedData[event] = now() - START_TIME
     }
     
-    /** turns a number of seconds given as a Double
-     into a number of microseconds as an Int
-     */
+    /** (_seconds_`:Double`) -> _microseconds_`:Int` */
     func secDblToMicroInt(intvl: NSTimeInterval) -> Int {
         return Int(intvl * 1E6)
     }
     
-    /** return right now's time into a micro-second */
+    /** Current time as _microsecond_`:Int` */
     func now() -> Int {
         // NSDate objects encapsulate a SINGLE point in
         // time and are IMMUTABLE.
         return secDblToMicroInt(NSDate().timeIntervalSince1970)
     }
 }
+
+// from stackoverflow.com/a/24219069/1959155
+extension Dictionary {
+    init(_ pairs: [Element]) {
+        self.init()
+        for (k, v) in pairs {
+            self[k] = v
+        }
+    }
+    
+    func mapPairs<OutKey: Hashable, OutValue>(@noescape transform: Element throws -> (OutKey, OutValue)) rethrows -> [OutKey: OutValue] {
+        return Dictionary<OutKey, OutValue>(try map(transform))
+    }
+    
+    func filterPairs(@noescape includeElement: Element throws -> Bool) rethrows -> [Key: Value] {
+        return Dictionary(try filter(includeElement))
+    }
+}
+
+// this is silly, but I like it
+func nill<T>(arg: T?) -> Bool { return arg == nil }

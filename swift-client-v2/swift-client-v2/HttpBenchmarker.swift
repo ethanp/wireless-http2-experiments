@@ -30,23 +30,20 @@ class HttpBenchmarker: ResultMgr {
     // TODO This doesn't actually work as intended.
     //      It doesn't seem to ever actually download the data.
     func doIt() {
-        let sema = Semaphore(value: 1)
         for vrsn in HttpVersion.allValues {
             print("collecting data for http \(vrsn.rawValue)")
             for i in 1...repsPerProtocol {
-                sema.wait()
-                collectResult(vrsn, forIndex: i+vrsn.rawValue*i)
-                sema.signal()
+                EventedHttp(
+                    version: vrsn,
+                    resultIndex: i+vrsn.rawValue*i,
+                    vc: vc,
+                    resultMgr: self
+                ).go()
             }
         }
     }
     
-    func collectResult(vrsn: HttpVersion, forIndex i: Int)  {
-        EventedHttp(version: vrsn, vc: vc, resultMgr: self)
-            .collectResult(forIndex: i)
-    }
-    
-    /** Don't call it. This is called by ResultMgr.addResult */
+    /** Don't call this. It is called by ResultMgr.addResult */
     override func uploadResults() {
         DataUploader.uploadResults([
             "exper": "http",
@@ -56,11 +53,11 @@ class HttpBenchmarker: ResultMgr {
     }
 }
 
-class EventedHttp: Benchmarker, NSURLSessionDataDelegate,
-                            NSURLSessionDownloadDelegate {
+class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
     
     var httpVersion: HttpVersion
     var vc: ViewController
+    var index: Int
     
     let ipAddr = "localhost"
     let page = "index.html"
@@ -70,7 +67,9 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate,
             .defaultSessionConfiguration()
         
         // TODO this could be nice to fiddle with...
-        //
+        //  though I guess it depends how Jetty deals with that
+        //  wait, which ports DO sites connect to when they
+        //  open parallel connections?
         conf.HTTPMaximumConnectionsPerHost = 5
         
         // my server's not gonna support pipelining anyway
@@ -89,11 +88,13 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate,
     
     init(
         version: HttpVersion,
+        resultIndex: Int,
         vc: ViewController,
         resultMgr: ResultMgr
     ) {
         self.httpVersion = version
         self.vc = vc
+        self.index = resultIndex
         super.init(resultMgr: resultMgr)
     }
     
@@ -102,14 +103,12 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate,
     }
     
     let sema = Semaphore()
-    func collectResult(forIndex i: Int) {
+    func go() {
         let ses = NSURLSession(
             configuration: sessionConfig,
             delegate: self,
-
             // create a bg-thread for this task
             delegateQueue: nil
-            
             // maybe better? dunno
 //            delegateQueue: NSOperationQueue.mainQueue()
         )
@@ -130,9 +129,7 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate,
             ses.downloadTaskWithRequest(
                 NSURLRequest(URL: testURL)
             ).resume()
-            self.sema.wait()
         }
-        resultMgr!.addResult(collectedData, forIndex: i)
     }
     
     /* Sent when a download task that has completed a download. */
@@ -142,9 +139,9 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate,
         didFinishDownloadingToURL location: NSURL)
     {
         vc.displayText(
-            "finished downloading at \(now() % 10000000)")
+            "finished downloading at \(now() % 10_000_000)")
         self.timestampEvent(.CLOSED)
-        self.sema.signal()
+        self.resultMgr!.addResult(collectedData, forIndex: i)
     }
     
     /* Sent periodically to notify the delegate of download progress. */
@@ -155,6 +152,6 @@ class EventedHttp: Benchmarker, NSURLSessionDataDelegate,
         totalBytesWritten:          Int64,
         totalBytesExpectedToWrite:  Int64)
     {
-        print("didWriteData was called at \(now())")
+        print("didWrite \(bytesWritten) bytes at: \(now())")
     }
 }

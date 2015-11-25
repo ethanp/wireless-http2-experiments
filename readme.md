@@ -139,7 +139,7 @@
 
 ## Tcp Experiment
 
-```
+```swift
 button.fire {
     bg.thread {
     for size in sizes {
@@ -148,13 +148,12 @@ button.fire {
     displayText("done")
 }
 
-TcpBenchmarker: ResultMgr 
+TcpBenchmarker: ResultMgr
     let sema
     func go {
         for i in 1...numConcurrentConns {
             eventedConns[i].recordEventsOnPort(i)
         }
-        sema.down()
     }
     var results = Results[numConcurrentConns]
     var numFull = 0
@@ -167,7 +166,7 @@ TcpBenchmarker: ResultMgr
     }
 }
 
-EventedConns: StreamDelegate {
+EventedConns: Benchmarker, StreamDelegate {
     func recordEventsOnPort(i) {
         note(Start)
         openConn(i)
@@ -195,7 +194,27 @@ button.fire {
 }
 
 HttpBenchmarker {
+    let sema
     func go() {
+        for vrsn in [1, 2] {
+            for rep in 1...numReps {
+                EventedHttp(
+                    httpVrsn,
+                    index: i,
+                    iphoneDisplay: screenRef,
+                    resultMgr: self
+                ).go()
+            }
+        }
+    }
+}
+
+EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
+    func collectResult(forIndex i: Int) {
+        let session = NSURLSession(config: myConfig, delegate: self)
+        session.resetThen {
+            session.downloadTask(url).resume()
+        }
 
     }
 }
