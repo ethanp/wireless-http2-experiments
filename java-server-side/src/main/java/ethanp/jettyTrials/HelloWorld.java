@@ -1,4 +1,4 @@
-package ethanp.examples;
+package ethanp.jettyTrials;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;

@@ -1,4 +1,4 @@
-package ethanp.examples;
+package ethanp.jettyTrials;
 
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;

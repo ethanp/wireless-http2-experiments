@@ -1,4 +1,4 @@
-package ethanp.examples;
+package ethanp.jettyTrials;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;

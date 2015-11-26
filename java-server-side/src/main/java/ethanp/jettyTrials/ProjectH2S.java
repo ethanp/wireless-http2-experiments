@@ -1,7 +1,5 @@
-package ethanp.examples;
+package ethanp.jettyTrials;
 
-import ethanp.examples.ProtocolDebugServlet;
-import ethanp.examples.PushedTilesFilter;
 import org.eclipse.jetty.alpn.ALPN;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.HttpVersion;
