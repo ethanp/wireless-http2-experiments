@@ -175,6 +175,7 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
                 if let theTrust = protectionSpace.serverTrust{
                     let theCredential = NSURLCredential(trust: theTrust)
                     theSender.useCredential(theCredential, forAuthenticationChallenge: challenge)
+                    completionHandler(.UseCredential, theCredential)
                     return
                 }
             }
