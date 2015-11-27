@@ -15,7 +15,7 @@ typealias Results = [Lifecycle: Int]
 let BASE_PORT = 12345
 
 class ViewController: UIViewController {
-
+    
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,13 +43,23 @@ class ViewController: UIViewController {
     }
     
     @IBAction func displayWebPage(sender: UIButton) {
-        let h2Url = NSURL(string: "https://localhost:8443/index.html")!
-        let h1Url = NSURL(string: "https://localhost:8444/index.html")!
-        print("downloading \(h1Url)")
-        secondTry(h1Url)
+        let h2Url = NSURL(string: "https://localhost:8443")!
+        let h1Url = NSURL(string: "https://localhost:8444")!
+        let wired = NSURL(string: "http://www.wired.com")!
+        secondTry(h2Url)
+//        firstTry(h2Url)
+    }
+    
+    func firstTry(myUrl: NSURL) {
+        NSURLSession.sharedSession().dataTaskWithURL(myUrl) {
+            data, res, error in
+            let s = String(data: data!, encoding: NSUTF8StringEncoding)
+            self.webView.loadHTMLString(s!, baseURL: nil)
+        }.resume()
     }
     
     func secondTry(myUrl: NSURL) {
+        print("downloading \(myUrl)")
         let downloadDelegate = ArbitraryTruster(view: self)
         let ses = NSURLSession(
             configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
@@ -61,23 +71,49 @@ class ViewController: UIViewController {
     
     func completed(location: NSURL) {
         print("downloaded")
-        var htmlString = "NON, MERCÍ"
-        do {
-            htmlString = try String.init(
-                contentsOfURL: location,
-                encoding: NSUTF8StringEncoding
-            )
-        } catch {
-            print("ERRORED OUT")
-            fatalError()
-        }
+        // Swift 2: try! means ignore possibility of error
+        let htmlString = try! String.init(
+            contentsOfURL: location,
+            encoding: NSUTF8StringEncoding
+        )
+        let regex = try! NSRegularExpression(
+            pattern: "src=\"(.*)\"",
+            options: .CaseInsensitive
+        )
         print("contents: \(htmlString)")
-        self.webView.loadHTMLString(htmlString, baseURL: nil)
+        let matches = regex.matchesInString(
+            htmlString,
+            options: .ReportCompletion,
+            range: NSMakeRange(0, htmlString.characters.count)
+        )
+        for m in matches {
+            let range = rangeFromNSRange(
+                m.rangeAtIndex(1),
+                string: htmlString
+            )
+            let substr = htmlString.substringWithRange(range)
+            print("will request: \(substr)")
+        }
+//        print(matches)
+//        self.webView.loadHTMLString(htmlString, baseURL: NSURL(string: "https://localhost:8443")!)
+//        self.webView.loadHTMLString(htmlString, baseURL: nil)
     }
     
     // could be inside func exploreTheSpace, but that would produce a compiler warning
     var currentBenchmarker: TcpBenchmarker?
     
+    func rangeFromNSRange(nsRange: NSRange, string: String) -> Range<String.Index> {
+        let start = String.Index(
+            string.utf16.startIndex.advancedBy(nsRange.location),
+            within: string
+        )
+        let end = String.Index(
+            string.utf16.startIndex.advancedBy(
+                nsRange.location + nsRange.length
+            ),
+            within: string)
+        return start!..<end!
+    }
     func exploreTheSpace(count: Int) {
         
         // amount of data downloaded grows EXPONENTIALLY
@@ -155,4 +191,3 @@ class ViewController: UIViewController {
         }
     }
 }
-
