@@ -42,78 +42,10 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func displayWebPage(sender: UIButton) {
-        let h2Url = NSURL(string: "https://localhost:8443")!
-        let h1Url = NSURL(string: "https://localhost:8444")!
-        let wired = NSURL(string: "http://www.wired.com")!
-        secondTry(h2Url)
-//        firstTry(h2Url)
-    }
-    
-    func firstTry(myUrl: NSURL) {
-        NSURLSession.sharedSession().dataTaskWithURL(myUrl) {
-            data, res, error in
-            let s = String(data: data!, encoding: NSUTF8StringEncoding)
-            self.webView.loadHTMLString(s!, baseURL: nil)
-        }.resume()
-    }
-    
-    func secondTry(myUrl: NSURL) {
-        print("downloading \(myUrl)")
-        let downloadDelegate = ArbitraryTruster(view: self)
-        let ses = NSURLSession(
-            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
-            delegate: downloadDelegate,
-            delegateQueue: nil
-        )
-        ses.downloadTaskWithURL(myUrl).resume()
-    }
-    
-    func completed(location: NSURL) {
-        print("downloaded")
-        // Swift 2: try! means ignore possibility of error
-        let htmlString = try! String.init(
-            contentsOfURL: location,
-            encoding: NSUTF8StringEncoding
-        )
-        let regex = try! NSRegularExpression(
-            pattern: "src=\"(.*)\"",
-            options: .CaseInsensitive
-        )
-        print("contents: \(htmlString)")
-        let matches = regex.matchesInString(
-            htmlString,
-            options: .ReportCompletion,
-            range: NSMakeRange(0, htmlString.characters.count)
-        )
-        for m in matches {
-            let range = rangeFromNSRange(
-                m.rangeAtIndex(1),
-                string: htmlString
-            )
-            let substr = htmlString.substringWithRange(range)
-            print("will request: \(substr)")
-        }
-//        print(matches)
-//        self.webView.loadHTMLString(htmlString, baseURL: NSURL(string: "https://localhost:8443")!)
-//        self.webView.loadHTMLString(htmlString, baseURL: nil)
-    }
-    
-    // could be inside func exploreTheSpace, but that would produce a compiler warning
+    // this could be inside func exploreTheSpace, but that 
+    // would produce a compiler warning
     var currentBenchmarker: TcpBenchmarker?
     
-    func rangeFromNSRange(nsRange: NSRange, string: String) -> Range<String.Index> {
-        let start = String.Index(
-            string.utf16.startIndex.advancedBy(nsRange.location),
-            within: string
-        )
-        let end = String.Index(
-            string.utf16.startIndex.advancedBy(
-                nsRange.location + nsRange.length
-            ),
-            within: string)
-        return start!..<end!
-    }
     func exploreTheSpace(count: Int) {
         
         // amount of data downloaded grows EXPONENTIALLY
@@ -148,46 +80,6 @@ class ViewController: UIViewController {
         Async.main {
             print(text)
             self.debugTextArea.text = "\(text)"
-        }
-    }
-    
-    // developer.apple.com/library/ios/technotes/tn2232/_index.html
-    class ArbitraryTruster : NSObject, NSURLSessionDelegate, NSURLSessionDownloadDelegate {
-        var view: ViewController
-        init(view: ViewController) {
-            self.view = view
-        }
-        func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
-            print("Invalidated: \(error)")
-        }
-        func URLSession(
-            session: NSURLSession,
-            didReceiveChallenge challenge: NSURLAuthenticationChallenge,
-            completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?)
-        -> Void) {
-            print("received challenge")
-            let protectionSpace = challenge.protectionSpace
-            let theSender = challenge.sender!
-            if protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-                if let theTrust = protectionSpace.serverTrust{
-                    let theCredential = NSURLCredential(trust: theTrust)
-                    theSender.useCredential(theCredential, forAuthenticationChallenge: challenge)
-                    completionHandler(.UseCredential, theCredential)
-                    return
-                }
-            }
-            theSender.performDefaultHandlingForAuthenticationChallenge!(challenge)
-            return
-        }
-        func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
-            print("finished Background Session: \(session)")
-        }
-        func URLSession(
-            session: NSURLSession,
-            downloadTask: NSURLSessionDownloadTask,
-            didFinishDownloadingToURL location: NSURL
-        ) {
-            self.view.completed(location)
         }
     }
 }
