@@ -11,24 +11,24 @@ import Alamofire
 
 /**
  What this does is
- 
+
  1. Connects to `syncCount` TCP servers at ports
  `BASE_PORT...BASE_PORT+syncCount-1`
  2. Collects performance data about those TCP connections
  3. Uploads the data to the Sinatra `dataserver.rb`
  */
 class TcpBenchmarker: ResultMgr {
-    
+
     /** Array of connections to each TCP server from which we shall
      concurrently download
      */
     var conns = [EventedConn]()
-    
+
     /** how many TCP servers to connect and download concurrently from */
     var syncCount: Int?
-    
+
     var bytesToDwnld: Int?
-    
+
     init(syncCount: Int, bytesToDwnld: Int) {
         super.init(numResults: syncCount)
         self.syncCount = syncCount
@@ -38,10 +38,10 @@ class TcpBenchmarker: ResultMgr {
             results.append([:])
         }
     }
-    
+
     /**
      Asynchronous method
-     
+
      1. initiates `syncCount` connections
      2. collects performance benchmarks
      3. uploads collected data to `dataserver.rb`
@@ -58,7 +58,7 @@ class TcpBenchmarker: ResultMgr {
         sema.wait()
         return self
     }
-    
+
     override func uploadResults() {
         DataUploader.uploadResults([
             "conns":   syncCount!,

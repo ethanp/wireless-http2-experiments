@@ -15,7 +15,7 @@ typealias Results = [Lifecycle: Int]
 let BASE_PORT = 12345
 
 class ViewController: UIViewController {
-    
+
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,9 +25,9 @@ class ViewController: UIViewController {
     // MARK: UI Elements
     @IBOutlet weak var fireRepeatedly: UIButton!
     @IBOutlet weak var fiveRepeatedly: UIButton!
-    
+
     @IBOutlet weak var http1FlurryButton: UIButton!
-    
+
     @IBOutlet weak var debugTextArea: UITextView!
     @IBOutlet weak var progressBar: UIProgressView!
     @IBOutlet weak var webView: UIWebView!
@@ -41,17 +41,17 @@ class ViewController: UIViewController {
             HttpBenchmarker(vc: self, repsPerProtocol: 20).doIt()
         }
     }
-    
-    // this could be inside func exploreTheSpace, but that 
+
+    // this could be inside func exploreTheSpace, but that
     // would produce a compiler warning
     var currentBenchmarker: TcpBenchmarker?
-    
+
     func exploreTheSpace(count: Int) {
-        
+
         // amount of data downloaded grows EXPONENTIALLY
         // from 1 Byte to 4 MB
         let FOUR_MEGS = 22
-        
+
         Async.userInitiated {
             for i in 1...FOUR_MEGS {
                 let size = (1 << i)
@@ -73,9 +73,9 @@ class ViewController: UIViewController {
             }
         }
     }
-    
+
     // MARK: Utilities
-    
+
     func displayText(text: AnyObject) {
         Async.main {
             print(text)

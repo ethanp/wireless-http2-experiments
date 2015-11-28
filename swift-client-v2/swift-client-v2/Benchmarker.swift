@@ -28,7 +28,7 @@ class ResultMgr {
 
     /** how many datapoints we have already collected */
     var done = 0
-    
+
     let sema = Semaphore()
 
     init(numResults: Int) {
@@ -37,7 +37,7 @@ class ResultMgr {
             repeatedValue: nil
         )
     }
-    
+
     /** This method MUST be overriden (otw RuntimeException!)
      What I want is an `abstract class` but I haven't found a
      way to do that in Swift
@@ -46,7 +46,7 @@ class ResultMgr {
         print("method not implemented")
         fatalError()
     }
-    
+
     func addResult(
         result: Results,
         forIndex i: Int,
@@ -76,10 +76,10 @@ class ResultMgr {
                 (k, v) in (k.rawValue, v)
             }
         }
-        
+
         return results.map(extractRawValues)
     }
-    
+
     private func resultsAsJson() -> JSON {
         var ugh = [JSON]()
         for resultData in results {
@@ -96,7 +96,7 @@ class ResultMgr {
         }
         return JSON(ugh)
     }
-    
+
     func getOnWifi() -> Bool {
         let reachability : Reachability
         do {
@@ -117,10 +117,10 @@ class Benchmarker: NSObject/*<-necessary*/ {
     init(resultMgr: ResultMgr?) {
         self.resultMgr = resultMgr
     }
-    
+
     /** `!` means it doesn't have to be init'd in `init()` */
     var START_TIME: Int!
-    
+
     /** Records the number of *microseconds* elapsed since
      recording the last `.START` */
     func timestampEvent(event: Lifecycle) {
@@ -131,12 +131,12 @@ class Benchmarker: NSObject/*<-necessary*/ {
         // record microseconds elapsed
         collectedData[event] = now() - START_TIME
     }
-    
+
     /** (_seconds_`:Double`) -> _microseconds_`:Int` */
     func secDblToMicroInt(intvl: NSTimeInterval) -> Int {
         return Int(intvl * 1E6)
     }
-    
+
     /** Current time as _microsecond_`:Int` */
     func now() -> Int {
         // NSDate objects encapsulate a SINGLE point in
@@ -153,11 +153,11 @@ extension Dictionary {
             self[k] = v
         }
     }
-    
+
     func mapPairs<OutKey: Hashable, OutValue>(@noescape transform: Element throws -> (OutKey, OutValue)) rethrows -> [OutKey: OutValue] {
         return Dictionary<OutKey, OutValue>(try map(transform))
     }
-    
+
     func filterPairs(@noescape includeElement: Element throws -> Bool) rethrows -> [Key: Value] {
         return Dictionary(try filter(includeElement))
     }

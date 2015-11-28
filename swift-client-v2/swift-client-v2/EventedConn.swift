@@ -17,17 +17,17 @@ class EventedConn: Benchmarker, NSStreamDelegate {
     var bytesToDwnld:Int?
     var inputStream: NSInputStream?
     var outputStream: NSOutputStream?
-    
-    var bytesRcvd = 0
-    
 
-    /** This function opens TCP streams to the given address and 
+    var bytesRcvd = 0
+
+
+    /** This function opens TCP streams to the given address and
         returns. Asynchronously, this object receives bytes over
-        those streams. Eventually it downloads `bytesToDwnld` 
-        bytes, and finishes adding entries into 
+        those streams. Eventually it downloads `bytesToDwnld`
+        bytes, and finishes adding entries into
             `collectedData: Results`.
-     
-        What it SHOULD be like is that `record(callback)` 
+
+        What it SHOULD be like is that `record(callback)`
         function that the other guy wrote.
     */
     func recordDataFor(host: String, onPort port: Int, bytesToDwnld: Int) {
@@ -39,7 +39,7 @@ class EventedConn: Benchmarker, NSStreamDelegate {
         print("connecting i = \(port)")
         // Note: typealias NSTimeInterval = Double
         timestampEvent(.START)
-        
+
         // HEH: I'm having trouble figuring out what EXACTLY this does
         NSStream.getStreamsToHostWithName(
             host,
@@ -55,12 +55,12 @@ class EventedConn: Benchmarker, NSStreamDelegate {
             i!.open()
         }
     }
-    
+
     /** This `EventedConn` is meant to connect to the "j^th" TCP server */
     func j() -> Int { return port!-BASE_PORT }
 
     /** Reads incoming data off the inStream.
-     
+
         Calls `resultMgr!.addResult(collectedData, forIndex: j())` once
         bytesToDwnld bytes have been downloaded.
     */
@@ -81,7 +81,7 @@ class EventedConn: Benchmarker, NSStreamDelegate {
 
             case NSStreamEvent.HasBytesAvailable:
                 print("input: HasBytesAvailable")
-                
+
                 // forget about reading more bytes than we need
                 if bytesRcvd < bytesToDwnld, let iss = inputStream {
 
@@ -95,7 +95,7 @@ class EventedConn: Benchmarker, NSStreamDelegate {
                     let BUFF_LEN = 1024
                     var inbuf = [UInt8](count: BUFF_LEN, repeatedValue: 0)
                     while iss.hasBytesAvailable && bytesRcvd < bytesToDwnld {
-                        
+
                         let bytesRemaining = bytesToDwnld! - bytesRcvd
                         let bytesToRead = min(BUFF_LEN, bytesRemaining)
                         /*
@@ -116,11 +116,11 @@ class EventedConn: Benchmarker, NSStreamDelegate {
                     if bytesRcvd >= bytesToDwnld {
                         timestampEvent(.LAST_BYTE)
 
-                        // This doesn't seem to actually 
+                        // This doesn't seem to actually
                         // close the TCP connection
                         closeStreams()
                         timestampEvent(.CLOSED)
-                        
+
                         resultMgr!.addResult(
                             collectedData,
                             forIndex: j(),
@@ -136,7 +136,7 @@ class EventedConn: Benchmarker, NSStreamDelegate {
             }
         }
     }
-    
+
     func closeStreams() {
         inputStream?.close()
         outputStream?.close()

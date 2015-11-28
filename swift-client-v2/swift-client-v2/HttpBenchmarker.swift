@@ -26,8 +26,8 @@ class HttpBenchmarker: ResultMgr {
         super.init(numResults:
             repsPerProtocol * HttpVersion.allValues.count)
     }
-    
-    /** This _blocks_ and therefore MUST NOT be executed on the `Main` thread 
+
+    /** This _blocks_ and therefore MUST NOT be executed on the `Main` thread
         As such, currently, the VC calls this on the UserInitiated queue
      */
     func doIt() {
@@ -45,7 +45,7 @@ class HttpBenchmarker: ResultMgr {
             }
         }
     }
-    
+
     /** Don't call this. It is called by ResultMgr.addResult */
     override func uploadResults() {
         DataUploader.uploadResults([
@@ -57,24 +57,24 @@ class HttpBenchmarker: ResultMgr {
 }
 
 class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
-    
+
     var httpVersion: HttpVersion
     var vc: ViewController
     var index: Int
-    
+
 //    let ipAddr = "localhost"
     let page = "index.html"
-    
+
     lazy var sessionConfig: NSURLSessionConfiguration = {
         let conf = NSURLSessionConfiguration
             .defaultSessionConfiguration()
-        
+
         // TODO this could be nice to fiddle with...
         //  though I guess it depends how Jetty deals with that
         //  wait, which ports DO sites connect to when they
         //  open parallel connections?
         conf.HTTPMaximumConnectionsPerHost = 5
-        
+
         // my server's not gonna support pipelining anyway
         conf.HTTPShouldUsePipelining = false
         // no caching is to be performed
@@ -88,7 +88,7 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
         conf.HTTPShouldSetCookies = false
         return conf
     }()
-    
+
     lazy var ses: NSURLSession = {
         return NSURLSession(
             configuration: self.sessionConfig,
@@ -109,11 +109,11 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
         self.index = resultIndex
         super.init(resultMgr: resultMgr)
     }
-    
+
     func port() -> Int {
         return httpVersion == .ONE ? 8444 : 8443
     }
-    
+
     lazy var testURL: NSURL = {
 //        return NSURL(string: "https://localhost:\(self.port())")!
         return NSURL(string: "https://209.6.146.184:\(self.port())")!
@@ -135,9 +135,9 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
             self.ses.downloadTaskWithURL(self.testURL).resume()
         }
     }
-    
+
     var outstandingImageRequests = 50
-    
+
     /* Sent when a download task that has completed a download. */
     func URLSession(
         session: NSURLSession,
@@ -177,7 +177,7 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
             self.ses.downloadTaskWithURL(url).resume()
         }
     }
-    
+
     func doneDownloadingImages() {
         timestampEvent(.CLOSED)
         resultMgr!.addResult(
@@ -186,7 +186,7 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
             semaUp: true
         )
     }
-    
+
     /* Sent periodically to notify the delegate of download progress. */
     func URLSession(
         session:                    NSURLSession,
@@ -197,7 +197,7 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
     {
         print("didWrite \(bytesWritten) bytes at: \(now())")
     }
-    
+
     func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
         print("did Become Invalid With Error: \(error)")
     }
@@ -214,11 +214,11 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
                     theSender.useCredential(theCredential, forAuthenticationChallenge: challenge)
                     completionHandler(.UseCredential, theCredential)
                     return
-            } 
+            }
             theSender.performDefaultHandlingForAuthenticationChallenge!(challenge)
             return
     }
-    
+
     func rangeFromNSRange(nsRange: NSRange, string: String) -> Range<String.Index> {
         let start = String.Index(
             string.utf16.startIndex.advancedBy(nsRange.location),
