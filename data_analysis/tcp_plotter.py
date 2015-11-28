@@ -2,7 +2,7 @@
 # Ethan
 
 import matplotlib.pyplot as plt
-import tabulator
+import tcp_tabulator
 import os
 
 os.chdir('/Users/Ethan/code/my-code/wireless-http2-experiments/data_analysis')
@@ -32,8 +32,8 @@ data_locs = []
 for date, hours in date_hours.items():
     for hour in hours:
         data_locs.append('../DataServer/%d-%d-%d_data.txt' % (month, date, hour))
-results = tabulator.collect(data_locs=data_locs)
-byte_vals = sorted(results[tabulator.WIFI][1][tabulator.OPEN].keys())
+results = tcp_tabulator.collect(data_locs=data_locs)
+byte_vals = sorted(results[tcp_tabulator.WIFI][1][tcp_tabulator.OPEN].keys())
 
 
 def avg(a_list):
@@ -83,13 +83,13 @@ def plot_stuff(subplot, event, is_wifi):
 
 
 wifi_modes = [
-    tabulator.WIFI,
-    tabulator.LTE
+    tcp_tabulator.WIFI,
+    tcp_tabulator.LTE
 ]
 events = [
-    tabulator.OPEN,
-    tabulator.FIRST_BYTE,
-    tabulator.LAST_BYTE
+    tcp_tabulator.OPEN,
+    tcp_tabulator.FIRST_BYTE,
+    tcp_tabulator.LAST_BYTE
 ]
 
 plt.legend([

@@ -1,8 +1,11 @@
 # 11/19/15
 # Ethan
 
+from pylab import plot, show, xlim, figure, \
+    hold, ylim, legend, boxplot, setp, axes
 import matplotlib.pyplot as plt
-import tabulator
+import http_tabulator
+from http_tabulator import WIFI, LTE, HTTP_1, HTTP_2
 import os
 
 os.chdir('/Users/Ethan/code/my-code/wireless-http2-experiments/data_analysis')
@@ -19,12 +22,11 @@ iPhone WiFi (2.4GHz) is [18, 22.7, 2.0].
 month = 11
 date_hours = {28: [16]}
 
-data_locs = []
-for date, hours in date_hours.items():
-    for hour in hours:
-        data_locs.append('../DataServer/%d-%d-%d_data.txt' % (month, date, hour))
-results = tabulator.collect(data_locs=data_locs)
-byte_vals = sorted(results[tabulator.WIFI][1][tabulator.OPEN].keys())
+results = http_tabulator.collect(data_locs=[
+    '../DataServer/%d-%d-%d_data.txt' % (month, date, hour)
+    for date, hours in date_hours.items()
+    for hour in hours
+    ])
 
 
 def avg(a_list):
@@ -39,60 +41,54 @@ def mins_maxs_avgs(arr):
     )
 
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-1. there's a one graph for each of the events OPEN, FIRST_BYTE, LAST_BYTE
-2. on each graph there's both the ONE_CONN case and the FIVE_CONN case
-3. there's one set of graphs for each of WIFI, LTE
-4. the three WIFI graphs are on the top row,
-    and the LTEs on the bottom row [2x3] or whatever
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+1. there's a one set of 2 box plots for each of the CONN_TYPES  "
+2. and one box plot for each of the HTTP_VRSNS                  "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
-def plot_stuff(subplot, event, is_wifi):
-    subplot.set_xscale('log', basex=2)
-    subplot.set_yscale('log', basey=2)
-    subplot.grid(True)
-    subplot.set_title(event)
+def set_box_colors(box_plot):
+    """ http://stackoverflow.com/a/16598291/1959155
+    :param box_plot: a matplotlib boxplot
+    """
+    setp(box_plot['boxes'][0], color='blue')
+    setp(box_plot['caps'][0], color='blue')
+    setp(box_plot['caps'][1], color='blue')
+    setp(box_plot['whiskers'][0], color='blue')
+    setp(box_plot['whiskers'][1], color='blue')
+    setp(box_plot['fliers'][0], color='blue')
+    setp(box_plot['fliers'][1], color='blue')
+    setp(box_plot['medians'][0], color='blue')
 
-    def do_id(d):
-        just_what_i_needed = sorted(d.items())
-        y = [i[1] for i in just_what_i_needed]
-        mn, mx, av = mins_maxs_avgs(y)
-        subplot.errorbar(byte_vals, av, yerr=[mn, mx])
-
-    for num_conns, data in sorted(results[is_wifi].items()):
-        do_id(data[event])
-
-        # TODO ? (typically, 1 is blue, 5 is green)
-        # subplot.legend(
-        # [
-        #         '$One\ Conn$',
-        #         '$Five\ Conn$'
-        #     ],
-        #     loc='lower right'
-        # )
+    setp(box_plot['boxes'][1], color='red')
+    setp(box_plot['caps'][2], color='red')
+    setp(box_plot['caps'][3], color='red')
+    setp(box_plot['whiskers'][2], color='red')
+    setp(box_plot['whiskers'][3], color='red')
+    setp(box_plot['fliers'][2], color='red')
+    setp(box_plot['fliers'][3], color='red')
+    setp(box_plot['medians'][1], color='red')
 
 
-wifi_modes = [
-    tabulator.WIFI,
-    tabulator.LTE
-]
-events = [
-    tabulator.OPEN,
-    tabulator.FIRST_BYTE,
-    tabulator.LAST_BYTE
-]
+wifi_results = results[WIFI].values()
+lte_results = results[LTE].values()
 
+fig, axes = plt.subplots(nrows=1, ncols=2)
+bp = axes[0].boxplot(wifi_results)
+set_box_colors(bp)
+axes[0].set_title('WIFI')
+
+bp = axes[1].boxplot(lte_results)
+set_box_colors(bp)
+axes[1].set_title('LTE')
+
+# set the legend
 plt.legend([
-    '$One\ Conn$',
-    '$Five\ Conn$'
-], loc='lower right')
-fig, axs = plt.subplots(nrows=len(wifi_modes), ncols=len(events))
-for row, wifi_mode in enumerate(wifi_modes):
-    for col, evt in enumerate(events):
-        plot_stuff(
-            subplot=axs[row, col],
-            event=evt,
-            is_wifi=wifi_mode)
+    '$HTTP/1.1$',
+    '$HTTP/2$'
+], loc='best')
+legend = plt.gca().get_legend()
+legend.legendHandles[0].set_color('blue')
+legend.legendHandles[1].set_color('red')
 
 plt.show()
