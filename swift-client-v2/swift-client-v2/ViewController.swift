@@ -38,7 +38,7 @@ class ViewController: UIViewController {
 
     @IBAction func runHttpExperiment(sender: UIButton) {
         Async.userInitiated {
-            HttpBenchmarker(vc: self, repsPerProtocol: 2).doIt()
+            HttpBenchmarker(vc: self, repsPerProtocol: 20).doIt()
         }
     }
     

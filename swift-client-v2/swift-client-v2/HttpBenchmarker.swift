@@ -62,7 +62,7 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
     var vc: ViewController
     var index: Int
     
-    let ipAddr = "localhost"
+//    let ipAddr = "localhost"
     let page = "index.html"
     
     lazy var sessionConfig: NSURLSessionConfiguration = {
@@ -115,7 +115,8 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
     }
     
     lazy var testURL: NSURL = {
-        return NSURL(string: "https://localhost:\(self.port())")!
+//        return NSURL(string: "https://localhost:\(self.port())")!
+        return NSURL(string: "https://209.6.146.184:\(self.port())")!
     }()
 
     func go() {
@@ -213,7 +214,7 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
                     theSender.useCredential(theCredential, forAuthenticationChallenge: challenge)
                     completionHandler(.UseCredential, theCredential)
                     return
-            }
+            } 
             theSender.performDefaultHandlingForAuthenticationChallenge!(challenge)
             return
     }
