@@ -220,15 +220,14 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
     }
 
     func rangeFromNSRange(nsRange: NSRange, string: String) -> Range<String.Index> {
-        let start = String.Index(
-            string.utf16.startIndex.advancedBy(nsRange.location),
-            within: string
-        )
-        let end = String.Index(
-            string.utf16.startIndex.advancedBy(
-                nsRange.location + nsRange.length
-            ),
-            within: string)
-        return start!..<end!
+        func getIndex(i: Int) -> String.Index {
+            return String.Index(
+                string.utf16.startIndex.advancedBy(i),
+                within: string
+            )!
+        }
+        let start = getIndex(nsRange.location)
+        let end = getIndex(nsRange.location + nsRange.length)
+        return start..<end
     }
 }
