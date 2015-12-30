@@ -116,7 +116,8 @@ class EventedHttp: Benchmarker, NSURLSessionDownloadDelegate {
 
     lazy var testURL: NSURL = {
 //        return NSURL(string: "https://localhost:\(self.port())")!
-        return NSURL(string: "https://209.6.146.184:\(self.port())")!
+//        return NSURL(string: "https://209.6.146.184:\(self.port())")!
+        return NSURL(string: "https://70.114.214.99:\(self.port())")!
     }()
 
     func go() {
